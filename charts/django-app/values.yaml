@@ -1,0 +1,44 @@
+replicaCount: 2
+
+image:
+  repository: "ТВІЙ_ECR_REPOSITORY_URL"
+  tag: "latest"
+  pullPolicy: Always
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+django:
+  secretKey: "django-insecure-yoursupersecretproductionkey"
+  debug: "True"
+  allowedHosts: "*"
+
+db:
+  name: "django_db"
+  user: "postgres"
+  password: "SuperSecretPassword123"
+  host: "rds-postgres-address-from-terraform"
+  port: "5432"
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8000
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 80
+
+namespace: django
+replicaCount: 2
+
+image:
+  repository: "123456789012.dkr.ecr.us-east-1.amazonaws.com/django-app" # Встав сюди URL свого ECR репозиторію
+  tag: "latest"
