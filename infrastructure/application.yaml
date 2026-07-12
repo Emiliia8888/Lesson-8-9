@@ -5,14 +5,19 @@ metadata:
   namespace: argocd
 spec:
   project: default
+
   source:
-    repoURL: 'ВАШ_URL_ГІТ_РЕПОЗИТОРІЮ'
-    path: 'path/to/your/helm/chart'
-    targetRevision: HEAD
+    repoURL: 'https://github.com/Emiliia8888/helm-django.git'
+    targetRevision: main
+    path: charts/django-app
+
   destination:
-    server: 'https://kubernetes.default.svc'
+    server: https://kubernetes.default.svc
     namespace: default
+
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

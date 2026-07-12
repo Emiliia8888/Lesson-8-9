@@ -1,14 +1,12 @@
-```groovy
 pipeline {
 
     agent {
         kubernetes {
-            yaml '''
+            yaml
 apiVersion: v1
 kind: Pod
 spec:
   containers:
-
   - name: kaniko
     image: gcr.io/kaniko-project/executor:latest
     command:
@@ -20,10 +18,9 @@ spec:
     command:
       - cat
     tty: true
-'''
+
         }
     }
-
 
     environment {
 
@@ -31,15 +28,14 @@ spec:
 
         ECR_REPO = "034255117140.dkr.ecr.us-east-1.amazonaws.com/lesson-8-9"
 
-        GIT_REPO = "https://github.com/Emiliia8888/Lesson-8-9"
+        GIT_REPO = "https://github.com/Emiliia8888/Lesson-8-9.git"
+
+        HELM_REPO = "https://github.com/Emiliia8888/helm-django.git"
 
         IMAGE_TAG = "${BUILD_NUMBER}"
-
     }
 
-
     stages {
-
 
         stage('Checkout Repository') {
 
@@ -69,30 +65,24 @@ spec:
 
         }
 
-
-
         stage('Build Docker Image') {
 
             steps {
 
                 container('kaniko') {
 
-
                     withCredentials([
                         [$class: 'AmazonWebServicesCredentialsBinding',
                         credentialsId: 'aws-creds']
                     ]) {
 
-
                         sh """
 
                         mkdir -p /kaniko/.docker
 
-
                         echo '{
                           "credsStore":"ecr-login"
                         }' > /kaniko/.docker/config.json
-
 
                         /kaniko/executor \
                           --context=dir://. \
@@ -109,40 +99,42 @@ spec:
 
         }
 
-
-
         stage('Update Helm Values') {
-
 
             steps {
 
-
                 container('git') {
 
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'github-creds',
+                            usernameVariable: 'GIT_USER',
+                            passwordVariable: 'GIT_TOKEN'
+                        )
+                    ]) {
 
-                    sh """
+                        sh """
 
-                    if [ -f charts/django-app/values.yaml ]; then
+                        rm -rf helm-django
+
+                        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Emiliia8888/helm-django.git
+
+                        cd helm-django
 
                         sed -i "s/tag:.*/tag: ${IMAGE_TAG}/g" charts/django-app/values.yaml
 
-                    fi
+                        git config user.email "jenkins@example.com"
+                        git config user.name "Jenkins"
 
+                        git add charts/django-app/values.yaml
 
-                    git config user.email "jenkins@example.com"
+                        git commit -m "Update image tag ${IMAGE_TAG}" || true
 
-                    git config user.name "Jenkins"
+                        git push origin main
 
+                        """
 
-                    git add .
-
-
-                    git commit -m "Update image tag ${IMAGE_TAG}" || true
-
-
-                    git push origin main
-
-                    """
+                    }
 
                 }
 
@@ -150,9 +142,7 @@ spec:
 
         }
 
-
     }
-
 
     post {
 
@@ -161,7 +151,6 @@ spec:
             echo "Deployment update completed successfully"
 
         }
-
 
         failure {
 
@@ -172,4 +161,3 @@ spec:
     }
 
 }
-```
