@@ -38,7 +38,7 @@ module "rds" {
   environment = var.environment
   name        = "django-db"
 
-  use_aurora  = false # Змініть на true, якщо потрібна Aurora
+  use_aurora = false # Змініть на true, якщо потрібна Aurora
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
@@ -50,7 +50,7 @@ module "rds" {
 
 
 module "s3_backend" {
-  source = "./modules/s3-backend"
+  source      = "./modules/s3-backend"
   bucket_name = "emiliia-terraform-state-lesson-5"
   table_name  = "terraform-lock-table"
 }

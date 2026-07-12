@@ -1,4 +1,6 @@
+```groovy
 pipeline {
+
     agent {
         kubernetes {
             yaml '''
@@ -6,39 +8,168 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
+
   - name: kaniko
     image: gcr.io/kaniko-project/executor:latest
     command:
-    - /busybox/cat
+      - /busybox/cat
     tty: true
-  - name: helm
-    image: alpine/helm:latest
+
+  - name: git
+    image: alpine/git
     command:
-    - cat
+      - cat
     tty: true
 '''
         }
     }
+
+
     environment {
+
         AWS_REGION = "us-east-1"
-        ECR_REPO = "123456789012.dkr.ecr.us-east-1.amazonaws.com/django-app"
+
+        ECR_REPO = "034255117140.dkr.ecr.us-east-1.amazonaws.com/lesson-8-9"
+
+        GIT_REPO = "https://github.com/Emiliia8888/Lesson-8-9"
+
+        IMAGE_TAG = "${BUILD_NUMBER}"
+
     }
+
+
     stages {
-        stage('Build & Push') {
+
+
+        stage('Checkout Repository') {
+
             steps {
+
+                container('git') {
+
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'github-creds',
+                            usernameVariable: 'GIT_USER',
+                            passwordVariable: 'GIT_TOKEN'
+                        )
+                    ]) {
+
+                        sh """
+                        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Emiliia8888/Lesson-8-9.git .
+
+                        git checkout main
+                        """
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+
+        stage('Build Docker Image') {
+
+            steps {
+
                 container('kaniko') {
-                    sh "/kaniko/executor --context=dir://. --dockerfile=Dockerfile --destination=${ECR_REPO}:${BUILD_NUMBER}"
+
+
+                    withCredentials([
+                        [$class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws-creds']
+                    ]) {
+
+
+                        sh """
+
+                        mkdir -p /kaniko/.docker
+
+
+                        echo '{
+                          "credsStore":"ecr-login"
+                        }' > /kaniko/.docker/config.json
+
+
+                        /kaniko/executor \
+                          --context=dir://. \
+                          --dockerfile=Dockerfile \
+                          --destination=${ECR_REPO}:${IMAGE_TAG}
+
+                        """
+
+                    }
+
                 }
+
             }
+
         }
-        stage('Update Helm Chart') {
+
+
+
+        stage('Update Helm Values') {
+
+
             steps {
-                container('helm') {
-                    // Оновлюємо тег у values.yaml перед тим, як Argo CD підхопить зміни
-                    sh "sed -i 's/tag:.*/tag: ${BUILD_NUMBER}/g' charts/django-app/values.yaml"
-                    // Тут має бути git commit та git push, щоб Argo CD побачив зміни в Git
+
+
+                container('git') {
+
+
+                    sh """
+
+                    if [ -f charts/django-app/values.yaml ]; then
+
+                        sed -i "s/tag:.*/tag: ${IMAGE_TAG}/g" charts/django-app/values.yaml
+
+                    fi
+
+
+                    git config user.email "jenkins@example.com"
+
+                    git config user.name "Jenkins"
+
+
+                    git add .
+
+
+                    git commit -m "Update image tag ${IMAGE_TAG}" || true
+
+
+                    git push origin main
+
+                    """
+
                 }
+
             }
+
         }
+
+
     }
+
+
+    post {
+
+        success {
+
+            echo "Deployment update completed successfully"
+
+        }
+
+
+        failure {
+
+            echo "Pipeline failed"
+
+        }
+
+    }
+
 }
+```

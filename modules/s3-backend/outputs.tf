@@ -10,5 +10,5 @@ output "bucket_arn" {
 
 output "dynamodb_table_name" {
   description = "Terraform lock table"
-  value       = aws_dynamodb_table.terraform_locks.name
+  value       = aws_dynamodb_table.terraform_lock.name
 }

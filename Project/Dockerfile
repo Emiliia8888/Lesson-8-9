@@ -11,11 +11,11 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Копіюємо файл із залежностями та встановлюємо їх
-COPY requirements.txt .
+COPY ../requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Копіюємо весь код нашого Django-додатка в контейнер
-COPY . .
+COPY .. .
 
 # Виставляємо порт, на якому працюватиме Django
 EXPOSE 8000
