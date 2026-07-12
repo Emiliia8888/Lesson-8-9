@@ -1,40 +1,177 @@
-# Lesson 7: Автоматизація деплою Django в Kubernetes (EKS) через Terraform та Helm
+# Lesson 8–9: CI/CD для Django в Amazon EKS за допомогою Jenkins, Helm, Terraform та Argo CD
 
-Цей проєкт є логічним продовженням Теми 5. Інфраструктура розгорнута за допомогою Terraform/OpenTofu, а деплой застосунку автоматизовано через інструмент Helm. Враховано вимоги безпеки (Secrets), інтеграцію з PostgreSQL (AWS RDS) та автоматичне масштабування (HPA).
+# Опис проєкту
 
-## 🛠 Використовувані інструменти та технології
+Цей проєкт реалізує повний GitOps CI/CD-процес для Django-застосунку в Amazon EKS.
 
-* **Terraform / OpenTofu** — підготовка EKS кластера, мережі (VPC), AWS RDS та ECR репозиторію.
-* **AWS S3 & DynamoDB (Backend)** — віддалене збереження стейту інфраструктури та блокування сесій (перенесено з Теми 5).
-* **AWS CLI** — автентифікація в ECR та оновлення локального конфігу `kubeconfig`.
-* **Docker** — збірка контейнеризованого Django-застосунку з підтримкою PostgreSQL (архітектура `linux/amd64`).
-* **Kubernetes (EKS)** — цільова хмарна платформа для запуску застосунку.
-* **Helm v3** — управління релізами та шаблонізація Kubernetes-маніфестів.
+Інфраструктура створюється за допомогою Terraform, Jenkins та Argo CD встановлюються через Helm, а весь процес збірки й розгортання автоматизовано.
 
----
+Після кожного коміту Jenkins автоматично:
 
-## 📐 Опис нових модулів та архітектурних виправлень
+* збирає Docker-образ Django-застосунку;
+* публікує образ у Amazon ECR;
+* оновлює тег образу в Helm chart окремого Git-репозиторію;
+* виконує push змін у гілку `main`.
 
-### 1. Інфраструктурний рівень (Terraform / OpenTofu)
-* **S3 Backend (`backend.tf`)**: Модуль та конфігурація перенесені з Теми 5 для збереження стану `terraform.tfstate` у захищеному S3-бакеті `emiliia-terraform-state-lesson-5` із блокуванням через DynamoDB (`terraform-lock-table`).
-* **Кластер EKS (`eks.tf`)**:
-  * Налаштовано автоматичне масштабування робочих нод (Node Group) відповідно до вимог HPA: `min_size = 2`, `max_size = 6`, `desired_size = 2`.
-  * Додано параметри `endpoint_private_access = true` та `endpoint_public_access = true` у `vpc_config`.
-  * Інтегровано блок `access_config` для безпечного керування доступами до API кластера через сучасні механізми AWS провайдера v6.
-* **Database**: Реалізовано перехід з SQLite на керовану базу даних PostgreSQL на базі AWS RDS.
-
-### 2. Рівень деплою (Helm-чарт `charts/django-app`)
-* **`values.yaml`**: Винесено всі змінні конфігурації. Налаштовано масштабування подів від 2 до 6 при навантаженні на CPU > 70%.
-* **`deployment.yaml`**: Реалізовано підключення конфігів. Додано та вирівняно блоки `livenessProbe` та `readinessProbe` (шлях `/health/` або `/`) для коректного відстеження життєвого циклу подів під час роботи HPA.
-* **`configmap.yaml`**: Відповідає за некритичні змінні оточення додатка (включаючи `DB_HOST`, `DB_NAME`, `DB_USER` та порт `DB_PORT`).
-* **`secret.yaml`**: Забезпечує безпечну передачу чутливих даних (`DB_PASSWORD`, `SECRET_KEY`) за допомогою кодування в Base64, повністю виключаючи хардкод у репозиторії та файлі `settings.py`.
+Після цього Argo CD автоматично виявляє зміни в Git-репозиторії та синхронізує застосунок із Kubernetes-кластером відповідно до принципів GitOps.
 
 ---
 
-## 🚀 Інструкція із запуску та керування релізами
+# Використані технології
 
-### 1. Ініціалізація та розгортання інфраструктури
-Переконайтеся, що ви перебуваєте в робочій директорії проєкту, після чого виконайте:
+* **Terraform** — створення AWS-інфраструктури.
+* **Amazon EKS** — Kubernetes-кластер.
+* **Amazon ECR** — сховище Docker-образів.
+* **Amazon S3 + DynamoDB** — backend для Terraform state.
+* **Helm** — встановлення Jenkins, Argo CD та керування Helm chart застосунку.
+* **Jenkins** — автоматизація CI/CD.
+* **Kubernetes Agent** — виконання Jenkins Pipeline у Kubernetes.
+* **Kaniko** — збірка Docker-образів без Docker Daemon.
+* **Git** — зберігання Helm chart та GitOps workflow.
+* **Argo CD** — автоматичне розгортання застосунку після змін у Git.
+
+---
+
+# Структура проєкту
+
+```text
+Project/
+│
+├── main.tf
+├── backend.tf
+├── outputs.tf
+│
+├── modules/
+│   ├── s3-backend/
+│   ├── vpc/
+│   ├── eks/
+│   ├── ecr/
+│   ├── jenkins/
+│   └── argo_cd/
+│
+├── charts/
+│   └── django-app/
+│
+└── Jenkinsfile
+```
+
+---
+
+# Інфраструктура
+
+Terraform автоматично створює:
+
+* VPC
+* Amazon EKS
+* Amazon ECR
+* S3 Backend
+* DynamoDB Lock Table
+
+Після створення EKS Terraform встановлює через Helm:
+
+* Jenkins
+* Argo CD
+
+---
+
+# Jenkins Pipeline
+
+Pipeline реалізовано в `Jenkinsfile`.
+
+Він виконує такі етапи:
+
+1. Checkout вихідного коду.
+2. Збірка Docker-образу за допомогою Kaniko.
+3. Публікація образу в Amazon ECR.
+4. Клонування репозиторію з Helm chart.
+5. Оновлення тегу Docker-образу у `values.yaml`.
+6. Commit та Push змін у гілку `main`.
+
+---
+
+# Kubernetes Agent
+
+Jenkins використовує Kubernetes Agent.
+
+Pipeline запускається всередині Pod, який містить два контейнери:
+
+* **Kaniko** — збірка Docker-образу;
+* **Git** — робота з Helm-репозиторієм.
+
+Такий підхід не потребує встановлення Docker Engine на Jenkins Master.
+
+---
+
+# Helm
+
+Helm використовується для:
+
+* встановлення Jenkins;
+* встановлення Argo CD;
+* розгортання Django-застосунку.
+
+Helm chart Django містить:
+
+* Deployment;
+* Service;
+* ConfigMap;
+* Secret;
+* Horizontal Pod Autoscaler.
+
+---
+
+# GitOps Workflow
+
+Після кожної зміни вихідного коду відбувається такий процес:
+
+1. Developer виконує push у Git.
+2. Jenkins запускає Pipeline.
+3. Kaniko збирає Docker-образ.
+4. Образ публікується в Amazon ECR.
+5. Jenkins оновлює тег образу в Helm chart.
+6. Jenkins виконує push змін у репозиторій Helm.
+7. Argo CD автоматично виявляє новий commit.
+8. Argo CD синхронізує Kubernetes-кластер.
+9. У кластері запускається нова версія застосунку.
+
+---
+
+# Argo CD
+
+Argo CD налаштований на автоматичну синхронізацію:
+
+* `automated`
+* `prune: true`
+* `selfHeal: true`
+
+Після оновлення Helm chart новий Docker-образ автоматично розгортається в Amazon EKS без ручного втручання.
+
+---
+
+# Розгортання інфраструктури
+
 ```bash
 terraform init
 terraform apply -auto-approve
+```
+
+Після завершення застосування Terraform буде створено:
+
+* Amazon EKS;
+* Amazon ECR;
+* Jenkins;
+* Argo CD.
+
+---
+
+# Результат
+
+У результаті реалізовано повністю автоматизований GitOps CI/CD процес:
+
+* Terraform автоматично створює інфраструктуру AWS.
+* Jenkins автоматично збирає Docker-образ.
+* Docker-образ публікується в Amazon ECR.
+* Jenkins автоматично оновлює Helm chart.
+* Argo CD автоматично синхронізує Kubernetes-кластер після змін у Git.
+
+Таким чином забезпечується безперервне розгортання (Continuous Deployment) Django-застосунку в Amazon EKS відповідно до принципів GitOps.
