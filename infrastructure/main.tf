@@ -10,7 +10,9 @@ module "eks" {
 }
 
 module "argo_cd" {
+  count = var.create_argo_cd ? 1 : 0
+
   source       = "./modules/argo_cd"
-  environment  = "dev"
+  environment  = var.environment
   cluster_name = module.eks.cluster_name
 }
