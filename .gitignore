@@ -1,3 +1,24 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Django
+*.sqlite3
+.env
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Mac
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
 .terraform/
 *.tfstate
 *.tfstate.*

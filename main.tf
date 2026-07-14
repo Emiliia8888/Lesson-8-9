@@ -34,7 +34,6 @@ module "eks" {
 module "jenkins" {
   source = "./modules/jenkins"
 
-  cluster_name = module.eks.cluster_name
 
   depends_on = [
     module.eks
@@ -44,7 +43,6 @@ module "jenkins" {
 module "argo_cd" {
   source = "./modules/argo_cd"
 
-  cluster_name = module.eks.cluster_name
 
   depends_on = [
     module.eks
@@ -73,3 +71,4 @@ module "s3_backend" {
   bucket_name = "emiliia-terraform-state-lesson-5"
   table_name  = "terraform-lock-table"
 }
+
