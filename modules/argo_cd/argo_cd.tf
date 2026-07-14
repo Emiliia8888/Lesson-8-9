@@ -16,9 +16,9 @@ resource "helm_release" "argo_cd" {
 }
 
 
-resource "helm_release" "argocd_apps" {
-  name       = "argocd-apps"
-  chart      = "${path.module}/charts/argocd-apps"
-  namespace  = kubernetes_namespace_v1.argocd.metadata[0].name
-  depends_on = [helm_release.argo_cd]
-}
+#resource "helm_release" "argocd_apps" {
+#  name       = "argocd-apps"
+#  chart      = "${path.module}/charts/argocd-apps"
+#  namespace  = kubernetes_namespace_v1.argocd.metadata[0].name
+#  depends_on = [helm_release.argo_cd]
+#}

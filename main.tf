@@ -31,6 +31,25 @@ module "eks" {
   environment = var.environment
   subnet_ids  = module.vpc.private_subnets
 }
+module "jenkins" {
+  source = "./modules/jenkins"
+
+  cluster_name = module.eks.cluster_name
+
+  depends_on = [
+    module.eks
+  ]
+}
+
+module "argo_cd" {
+  source = "./modules/argo_cd"
+
+  cluster_name = module.eks.cluster_name
+
+  depends_on = [
+    module.eks
+  ]
+}
 
 
 module "rds" {
