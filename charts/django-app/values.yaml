@@ -9,8 +9,14 @@ containerPort: 8000
 
 django:
   secretKey: "change-me-production-secret"
+  debug: "True"
+  allowedHosts: "*"
 
 db:
+  host: "dev-django-db-rds.ctskymysi6zv.eu-central-1.rds.amazonaws.com"
+  port: "5432"
+  name: "postgres"
+  user: "postgres"
   password: "change-me-db-password"
 
 hpa:
