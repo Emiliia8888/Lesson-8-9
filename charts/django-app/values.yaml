@@ -10,6 +10,9 @@ containerPort: 8000
 django:
   secretKey: "change-me-production-secret"
 
+db:
+  password: "change-me-db-password"
+
 service:
   type: ClusterIP
   port: 80
