@@ -1,43 +1,13 @@
-replicaCount: 2
-
-
 image:
-  repository: "123456789012.dkr.ecr.us-east-1.amazonaws.com/django-app"
+  repository: "034255117140.dkr.ecr.eu-central-1.amazonaws.com/django-app"
   tag: "latest"
   pullPolicy: Always
 
+replicaCount: 1
 
-resources:
-  limits:
-    cpu: 500m
-    memory: 512Mi
-  requests:
-    cpu: 250m
-    memory: 256Mi
-
-
-django:
-  debug: "False"
-  allowedHosts: "*"
-  secretKey: "django-insecure-yoursupersecretproductionkey"
-
-
-db:
-  name: "django_db"
-  user: "postgres"
-  password: "SuperSecretPassword123"
-  host: "rds-postgres-address-from-terraform"
-  port: "5432"
-
+containerPort: 8000
 
 service:
-  type: LoadBalancer
+  type: ClusterIP
   port: 80
   targetPort: 8000
-
-
-hpa:
-  enabled: true
-  minReplicas: 2
-  maxReplicas: 6
-  targetCPUUtilizationPercentage: 80
