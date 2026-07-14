@@ -1,13 +1,12 @@
-{{- if .Values.hpa.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: django-app-hpa
+  name: {{ .Chart.Name }}-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: django-app
+    name: {{ include "django-app.fullname" . }}
   minReplicas: 2
   maxReplicas: 6
   metrics:
@@ -17,4 +16,3 @@ spec:
         target:
           type: Utilization
           averageUtilization: 70
-{{- end }}
