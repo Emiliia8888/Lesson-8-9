@@ -7,6 +7,9 @@ replicaCount: 1
 
 containerPort: 8000
 
+django:
+  secretKey: "change-me-production-secret"
+
 service:
   type: ClusterIP
   port: 80
