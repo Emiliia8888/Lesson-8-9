@@ -1,0 +1,9 @@
+image:
+  repository: "123456789012.dkr.ecr.us-east-1.amazonaws.com/django-app"
+  tag: "latest"
+  pullPolicy: Always
+
+replicaCount: 1
+
+containerPort: 8000
+

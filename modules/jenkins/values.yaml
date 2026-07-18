@@ -1,0 +1,55 @@
+serviceAccount:
+  create: false
+  name: jenkins
+
+
+controller:
+
+  admin:
+    username: admin
+    password: admin123
+
+
+  installPlugins:
+    - kubernetes:latest
+    - workflow-aggregator:latest
+    - git:latest
+    - configuration-as-code:latest
+    - docker-workflow:latest
+
+
+  JCasC:
+
+    defaultConfig: true
+
+    configScripts:
+
+      welcome-message.yaml: |
+        jenkins:
+          systemMessage: "Jenkins configured with Terraform + Helm + IRSA"
+
+
+persistence:
+
+  enabled: true
+
+  storageClass: gp3
+
+  size: 20Gi
+
+
+agent:
+
+  enabled: true
+
+  podTemplates:
+
+    kaniko: |
+      - name: kaniko
+        label: kaniko
+        containers:
+          - name: kaniko
+            image: gcr.io/kaniko-project/executor:latest
+            command: /busybox/cat
+            ttyEnabled: true
+            privileged: false
