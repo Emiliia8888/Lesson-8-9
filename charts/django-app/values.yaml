@@ -1,5 +1,5 @@
 image:
-  repository: "123456789012.dkr.ecr.us-east-1.amazonaws.com/django-app"
+  repository: "034255117140.dkr.ecr.eu-central-1.amazonaws.com/django-app"
   tag: "latest"
   pullPolicy: Always
 
