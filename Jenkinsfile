@@ -5,9 +5,11 @@ pipeline {
             yaml """
 apiVersion: v1
 kind: Pod
+
 metadata:
   labels:
     app: django-app-pipeline
+
 spec:
 
   securityContext:
@@ -26,22 +28,27 @@ spec:
     - name: workspace-volume
       mountPath: /home/jenkins/agent
 
+
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
     command:
     - /busybox/cat
     tty: true
+
     volumeMounts:
     - name: workspace-volume
       mountPath: /home/jenkins/agent
+
     - name: docker-config
       mountPath: /kaniko/.docker
+
 
   - name: aws
     image: amazon/aws-cli:latest
     command:
     - cat
     tty: true
+
     volumeMounts:
     - name: workspace-volume
       mountPath: /home/jenkins/agent
@@ -83,7 +90,9 @@ spec:
 
                     sh '''
                     echo "Using Declarative SCM checkout"
+
                     ls -la
+
                     '''
 
                 }
@@ -91,6 +100,7 @@ spec:
             }
 
         }
+
 
 
         stage('Validate Project') {
@@ -100,6 +110,7 @@ spec:
                 container('git') {
 
                     sh '''
+
                     echo "Checking project..."
 
                     test -f Dockerfile
@@ -109,6 +120,7 @@ spec:
                     test -f requirements.txt
 
                     echo "requirements.txt found."
+
                     '''
 
                 }
@@ -116,6 +128,7 @@ spec:
             }
 
         }
+
 
 
 
@@ -144,6 +157,7 @@ spec:
 
 
 
+
         stage('Update Helm Values') {
 
             steps {
@@ -152,13 +166,25 @@ spec:
 
                     sh '''
 
+                    echo "Preparing git workspace"
+
+
+                    if [ ! -d ".git" ]; then
+
+                        git clone https://github.com/Emiliia8888/Lesson-8-9.git .
+
+                    fi
+
+
+
                     echo "Updating image tag..."
 
 
                     sed -i "s/tag: .*/tag: ${IMAGE_TAG}/" charts/django-app/values.yaml
 
 
-                    echo "Updated values.yaml:"
+
+                    echo "Current values.yaml:"
 
                     cat charts/django-app/values.yaml
 
@@ -176,7 +202,7 @@ spec:
 
                     git commit \
                     -m "Update django image tag to ${IMAGE_TAG}" \
-                    || echo "No changes to commit"
+                    || echo "No changes"
 
 
 
@@ -190,7 +216,6 @@ spec:
             }
 
         }
-
 
 
     }
@@ -217,11 +242,13 @@ spec:
         }
 
 
+
         success {
 
             echo "Pipeline completed successfully."
 
         }
+
 
 
         failure {
@@ -230,6 +257,8 @@ spec:
 
         }
 
+
     }
+
 
 }
