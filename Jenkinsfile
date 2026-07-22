@@ -40,15 +40,15 @@ spec:
 
     environment {
 
-        AWS_REGION = "us-east-1"
+        AWS_REGION = "eu-central-1"
 
-        ECR_REPO = "034255117140.dkr.ecr.us-east-1.amazonaws.com/lesson-8-9"
+        ECR_REPO = "034255117140.dkr.ecr.eu-central-1.amazonaws.com/django-app"
 
         IMAGE_TAG = "${BUILD_NUMBER}"
 
         APP_REPO = "Lesson-8-9"
 
-        HELM_REPO = "helm-django"
+        HELM_REPO = "Lesson-8-9"
     }
 
     stages {
@@ -146,11 +146,11 @@ EOF
                     ]) {
 
                         sh '''
-                        rm -rf helm-django
+                        rm -rf Lesson-8-9
 
-                        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Emiliia8888/helm-django.git
+                        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Emiliia8888/Lesson-8-9.git
 
-                        cd helm-django
+                        cd Lesson-8-9
 
                         sed -i.bak "s/tag:.*/tag: ${IMAGE_TAG}/" charts/django-app/values.yaml
 
