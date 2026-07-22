@@ -61,7 +61,6 @@ spec:
 
                     sh '''
                     echo "Using Declarative SCM checkout"
-                    git status
                     ls -la
                     '''
                 }
