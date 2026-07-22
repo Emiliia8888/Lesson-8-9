@@ -102,12 +102,13 @@ spec:
                     echo "Checking project..."
 
                     test -f Dockerfile
-
                     echo "Dockerfile found."
 
                     test -f requirements.txt
-
                     echo "requirements.txt found."
+
+                    test -f charts/django-app/values.yaml
+                    echo "Helm values.yaml found."
                     '''
 
                 }
@@ -115,7 +116,6 @@ spec:
             }
 
         }
-
 
 
         stage('Build Docker Image with Kaniko') {
@@ -142,9 +142,32 @@ spec:
         }
 
 
+        stage('Update Helm Values') {
+
+            steps {
+
+                container('git') {
+
+                    sh '''
+
+                    echo "Updating image tag..."
+
+                    sed -i "s/tag: .*/tag: ${IMAGE_TAG}/" charts/django-app/values.yaml
+
+                    echo "Updated values.yaml:"
+
+                    cat charts/django-app/values.yaml
+
+                    '''
+
+                }
+
+            }
+
+        }
+
 
     }
-
 
 
     post {
