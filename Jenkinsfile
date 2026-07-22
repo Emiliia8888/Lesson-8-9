@@ -92,12 +92,7 @@ spec:
 
                 container('kaniko') {
 
-                    withCredentials([
-                        [$class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'aws-creds']
-                    ]) {
-
-                        sh '''
+                    sh '''
                         mkdir -p /kaniko/.docker
 
                         cat > /kaniko/.docker/config.json <<EOF
@@ -111,8 +106,7 @@ EOF
                           --dockerfile=Dockerfile \
                           --destination=${ECR_REPO}:${IMAGE_TAG} \
                           --cache=true
-                        '''
-                    }
+                    '''
                 }
             }
         }
