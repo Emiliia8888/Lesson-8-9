@@ -158,57 +158,54 @@ spec:
 
 
 
-        stage('Update Helm Values') {
+stage('Update Helm Values') {
 
-            steps {
+    steps {
 
-                container('git') {
+        container('git') {
 
-                    sh '''
+            withCredentials([usernamePassword(
+                credentialsId: 'github-creds',
+                usernameVariable: 'GIT_USERNAME',
+                passwordVariable: 'GIT_PASSWORD'
+            )]) {
 
-                    echo "Cloning repository for GitOps update"
+                sh '''
 
-                    rm -rf gitops-repo
+                echo "Cloning repository for GitOps update"
 
-                    git clone https://github.com/Emiliia8888/Lesson-8-9.git gitops-repo
+                rm -rf gitops-repo
 
+                git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Emiliia8888/Lesson-8-9.git gitops-repo
 
-                    cd gitops-repo
+                cd gitops-repo
 
+                                echo "Updating image tag..."
 
-                    echo "Updating image tag..."
+                sed -i "s/tag: .*/tag: ${IMAGE_TAG}/" charts/django-app/values.yaml
 
+                echo "Current values.yaml:"
+                cat charts/django-app/values.yaml
 
-                    sed -i "s/tag: .*/tag: ${IMAGE_TAG}/" charts/django-app/values.yaml
+                git config user.email "jenkins@localhost"
+                git config user.name "Jenkins"
 
+                git add charts/django-app/values.yaml
 
-                    echo "Current values.yaml:"
-                    cat charts/django-app/values.yaml
+                git commit -m "Update django image tag to ${IMAGE_TAG}" || echo "No changes"
 
+                git push origin HEAD:main
 
-                    git config user.email "jenkins@localhost"
-                    git config user.name "Jenkins"
-
-
-                    git add charts/django-app/values.yaml
-
-
-                    git commit -m "Update django image tag to ${IMAGE_TAG}" || echo "No changes"
-
-
-                    git push origin main
-
-
-                    '''
-
-                }
+                '''
 
             }
 
         }
 
-
     }
+
+}
+
 
 
 
