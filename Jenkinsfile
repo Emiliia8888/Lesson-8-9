@@ -59,24 +59,11 @@ spec:
 
                 container('git') {
 
-                    withCredentials([
-                        usernamePassword(
-                            credentialsId: 'github-creds',
-                            usernameVariable: 'GIT_USER',
-                            passwordVariable: 'GIT_TOKEN'
-                        )
-                    ]) {
-
-                        sh '''
-                        rm -rf *
-
-                        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Emiliia8888/Lesson-8-9.git .
-
-                        git checkout main
-
-                        git status
-                        '''
-                    }
+                    sh '''
+                    echo "Using Declarative SCM checkout"
+                    git status
+                    ls -la
+                    '''
                 }
             }
         }
@@ -195,7 +182,7 @@ EOF
 
         always {
 
-            cleanWs()
+            deleteDir()
 
         }
     }
