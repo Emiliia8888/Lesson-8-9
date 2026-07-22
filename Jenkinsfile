@@ -143,32 +143,6 @@ spec:
 
 
 
-        stage('Push Image') {
-
-            steps {
-
-                container('aws') {
-
-                    sh '''
-
-                    echo "Logging into ECR..."
-
-                    aws ecr get-login-password \
-                    --region ${AWS_REGION} \
-                    | docker login \
-                    --username AWS \
-                    --password-stdin ${ECR_REPOSITORY}
-
-
-                    '''
-
-                }
-
-            }
-
-        }
-
-
     }
 
 
