@@ -1,0 +1,44 @@
+replicaCount: 2
+
+image:
+  repository: "034255117140.dkr.ecr.eu-central-1.amazonaws.com/django-app"
+  tag: "latest"
+  tag: latest
+  pullPolicy: Always
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+django:
+  debug: "False"
+  allowedHosts: "*"
+  secretKey: "django-insecure-yoursupersecretproductionkey"
+  secretKey: "django-insecure-yoursupersecretproductionkey"
+  debug: "True"
+  allowedHosts: "*"
+
+db:
+  name: "django_db"
+  user: "postgres"
+  password: "DjangoSecurePass2026"
+  host: "dev-django-db-rds.ctskymysi6zv.eu-central-1.rds.amazonaws.com"
+  password: "SecurePassword2026!"
+  host: "rds-postgres-address-from-terraform"
+  port: "5432"
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8000
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 80
+  targetCPUUtilizationPercentage: 70

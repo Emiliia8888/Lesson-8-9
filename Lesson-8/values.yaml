@@ -1,0 +1,24 @@
+controller:
+  installPlugins:
+    - kubernetes:latest
+    - workflow-aggregator:latest
+    - git:latest
+    - configuration-as-code:latest
+
+  serviceType: LoadBalancer
+
+  persistence:
+    enabled: true
+    size: 10Gi
+
+  agent:
+    enabled: true
+
+agent:
+  enabled: true
+
+  image:
+    repository: jenkins/inbound-agent
+    tag: latest
+
+  workingDir: /home/jenkins/agent

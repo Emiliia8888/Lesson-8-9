@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "django-app.fullname" . }}
+  labels:
+    app: {{ include "django-app.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ include "django-app.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "django-app.name" . }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: 8000
+
+          # Додані проби для стабільності
+          livenessProbe:
+            httpGet:
+              path: /health/ # Переконайтесь, що у вас є цей ендпоінт в Django
+              port: 8000
+          readinessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+
+          env:
+            - name: DJANGO_DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "django-app.fullname" . }}-config
+                  key: DJANGO_DEBUG
+            - name: ALLOWED_HOSTS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "django-app.fullname" . }}-config
+                  key: ALLOWED_HOSTS
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "django-app.fullname" . }}-config
+                  key: DB_NAME
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "django-app.fullname" . }}-config
+                  key: DB_USER
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "django-app.fullname" . }}-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "django-app.fullname" . }}-config
+                  key: DB_PORT
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "django-app.fullname" . }}-secret
+  name: django-app
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: django-app
+  template:
+    metadata:
+      labels:
+        app: django-app
+    spec:
+      containers:
+        - name: django-app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          envFrom:
+            - configMapRef:
+                name: django-app-config
+
+          env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: django-app-secret
+                  key: SECRET_KEY
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "django-app.fullname" . }}-secret
+                  key: DB_PASSWORD
+                  name: django-app-secret
+                  key: DB_PASSWORD
+
+          ports:
+            - containerPort: 8000
+
+          resources:
+{{ toYaml .Values.resources | indent 12 }}

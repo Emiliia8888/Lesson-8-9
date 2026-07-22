@@ -1,0 +1,72 @@
+controller:
+  serviceType: LoadBalancer
+
+  installPlugins:
+    - kubernetes:latest
+    - workflow-aggregator:latest
+    - git:latest
+    - configuration-as-code:latest
+    - credentials:latest
+    - github:latest
+    - docker-workflow:latest
+
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: gp3
+
+  admin:
+    username: admin
+    password: admin123
+
+  JCasC:
+    enabled: true
+
+agent:
+  enabled: true
+
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+  podTemplates:
+    kaniko: |
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        labels:
+          jenkins: agent
+      spec:
+        serviceAccountName: jenkins
+
+        containers:
+          - name: kaniko
+            image: gcr.io/kaniko-project/executor:latest
+            command:
+              - sleep
+            args:
+              - "999999"
+
+            tty: true
+
+            volumeMounts:
+              - name: docker-config
+                mountPath: /kaniko/.docker
+
+          - name: git
+            image: alpine/git:latest
+            command:
+              - sleep
+            args:
+              - "999999"
+
+            tty: true
+
+        volumes:
+          - name: docker-config
+            secret:
+              secretName: ecr-secret

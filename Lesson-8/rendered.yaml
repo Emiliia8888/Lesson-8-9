@@ -1,0 +1,135 @@
+---
+# Source: django-app/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-django-app-secret
+type: Opaque
+data:
+  SECRET_KEY: "Y2hhbmdlLW1lLXByb2R1Y3Rpb24tc2VjcmV0"
+  DB_PASSWORD: "Y2hhbmdlLW1lLWRiLXBhc3N3b3Jk"
+---
+# Source: django-app/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-django-app-config
+data:
+  DJANGO_DEBUG: "True"
+  ALLOWED_HOSTS: "*"
+  DB_NAME: "postgres"
+  DB_USER: "postgres"
+  DB_HOST: "dev-django-db-rds.ctskymysi6zv.eu-central-1.rds.amazonaws.com"
+  DB_PORT: "5432"
+
+---
+# Source: django-app/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-app-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app: django-app
+---
+# Source: django-app/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-django-app
+  labels:
+    app: django-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-app
+  template:
+    metadata:
+      labels:
+        app: django-app
+    spec:
+      containers:
+        - name: django-app
+          image: "034255117140.dkr.ecr.eu-central-1.amazonaws.com/django-app:latest"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+
+          # Додані проби для стабільності
+          livenessProbe:
+            httpGet:
+              path: /health/ # Переконайтесь, що у вас є цей ендпоінт в Django
+              port: 8000
+          readinessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+
+          env:
+            - name: DJANGO_DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: test-django-app-config
+                  key: DJANGO_DEBUG
+            - name: ALLOWED_HOSTS
+              valueFrom:
+                configMapKeyRef:
+                  name: test-django-app-config
+                  key: ALLOWED_HOSTS
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: test-django-app-config
+                  key: DB_NAME
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: test-django-app-config
+                  key: DB_USER
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: test-django-app-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: test-django-app-config
+                  key: DB_PORT
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: test-django-app-secret
+                  key: SECRET_KEY
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: test-django-app-secret
+                  key: DB_PASSWORD
+---
+# Source: django-app/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: django-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: test-django-app
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
