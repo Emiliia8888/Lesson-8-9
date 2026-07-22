@@ -2,56 +2,77 @@ pipeline {
 
     agent {
         kubernetes {
-            yaml '''
+            yaml """
 apiVersion: v1
 kind: Pod
+metadata:
+  labels:
+    app: django-app-pipeline
 spec:
+
+  securityContext:
+    fsGroup: 1000
+
   serviceAccountName: jenkins
 
   containers:
 
-    - name: kaniko
-      image: gcr.io/kaniko-project/executor:debug
-      command:
-        - /busybox/cat
-      tty: true
-      volumeMounts:
-        - name: docker-config
-          mountPath: /kaniko/.docker
+  - name: git
+    image: alpine/git:latest
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: workspace-volume
+      mountPath: /home/jenkins/agent
 
-    - name: git
-      image: alpine/git:latest
-      command:
-        - cat
-      tty: true
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    command:
+    - /busybox/cat
+    tty: true
+    volumeMounts:
+    - name: workspace-volume
+      mountPath: /home/jenkins/agent
+    - name: docker-config
+      mountPath: /kaniko/.docker
 
-    - name: aws
-      image: amazon/aws-cli:latest
-      command:
-        - cat
-      tty: true
+  - name: aws
+    image: amazon/aws-cli:latest
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: workspace-volume
+      mountPath: /home/jenkins/agent
 
   volumes:
-    - name: docker-config
-      emptyDir: {}
-'''
+
+  - name: workspace-volume
+    emptyDir: {}
+
+  - name: docker-config
+    emptyDir: {}
+
+"""
         }
     }
+
 
     environment {
 
         AWS_REGION = "eu-central-1"
 
-        ECR_REPO = "034255117140.dkr.ecr.eu-central-1.amazonaws.com/django-app"
+        ECR_REPOSITORY =
+        "034255117140.dkr.ecr.eu-central-1.amazonaws.com/django-app"
 
         IMAGE_TAG = "${BUILD_NUMBER}"
 
-        APP_REPO = "Lesson-8-9"
-
-        HELM_REPO = "Lesson-8-9"
     }
 
+
     stages {
+
 
         stage('Checkout Application') {
 
@@ -63,9 +84,13 @@ spec:
                     echo "Using Declarative SCM checkout"
                     ls -la
                     '''
+
                 }
+
             }
+
         }
+
 
         stage('Validate Project') {
 
@@ -76,107 +101,111 @@ spec:
                     sh '''
                     echo "Checking project..."
 
-                    ls -la
-
                     test -f Dockerfile
 
                     echo "Dockerfile found."
+
+                    test -f requirements.txt
+
+                    echo "requirements.txt found."
                     '''
+
                 }
+
             }
+
         }
 
-        stage('Build and Push Image to Amazon ECR') {
+
+
+        stage('Build Docker Image with Kaniko') {
 
             steps {
 
                 container('kaniko') {
 
                     sh '''
-                        mkdir -p /kaniko/.docker
 
-                        cat > /kaniko/.docker/config.json <<EOF
-{
-  "credsStore":"ecr-login"
-}
-EOF
+                    echo "Building image..."
 
-                        /kaniko/executor \
-                          --context=dir://. \
-                          --dockerfile=Dockerfile \
-                          --destination=${ECR_REPO}:${IMAGE_TAG} \
-                          --cache=true
+                    /kaniko/executor \
+                    --dockerfile=Dockerfile \
+                    --context=$WORKSPACE \
+                    --destination=${ECR_REPOSITORY}:${IMAGE_TAG}
+
                     '''
+
                 }
+
             }
+
         }
 
-        stage('Update Helm Chart') {
+
+
+        stage('Push Image') {
 
             steps {
 
-                container('git') {
+                container('aws') {
 
-                    withCredentials([
-                        usernamePassword(
-                            credentialsId: 'github-creds',
-                            usernameVariable: 'GIT_USER',
-                            passwordVariable: 'GIT_TOKEN'
-                        )
-                    ]) {
+                    sh '''
 
-                        sh '''
-                        rm -rf Lesson-8-9
+                    echo "Logging into ECR..."
 
-                        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Emiliia8888/Lesson-8-9.git
+                    aws ecr get-login-password \
+                    --region ${AWS_REGION} \
+                    | docker login \
+                    --username AWS \
+                    --password-stdin ${ECR_REPOSITORY}
 
-                        cd Lesson-8-9
 
-                        sed -i.bak "s/tag:.*/tag: ${IMAGE_TAG}/" charts/django-app/values.yaml
+                    '''
 
-                        rm -f charts/django-app/values.yaml.bak
-
-                        git config user.name "Jenkins"
-
-                        git config user.email "jenkins@example.com"
-
-                        git add charts/django-app/values.yaml
-
-                        git commit -m "Update image tag to ${IMAGE_TAG}" || echo "Nothing to commit"
-
-                        git push origin main
-                        '''
-                    }
                 }
+
             }
+
         }
+
+
     }
+
+
 
     post {
 
-        success {
-
-            echo "======================================"
-            echo "Pipeline completed successfully."
-            echo "Docker image pushed to Amazon ECR."
-            echo "Helm chart updated."
-            echo "Argo CD will automatically sync changes."
-            echo "======================================"
-
-        }
-
-        failure {
-
-            echo "======================================"
-            echo "Pipeline failed."
-            echo "======================================"
-
-        }
 
         always {
 
-            deleteDir()
+            container('git') {
+
+                sh '''
+
+                echo "Cleaning workspace permissions"
+
+                chmod -R u+rwX,g+rwX,o+rwX $WORKSPACE || true
+
+                '''
+
+            }
 
         }
+
+
+        success {
+
+            echo "Pipeline completed successfully."
+
+        }
+
+
+        failure {
+
+            echo "Pipeline failed."
+
+        }
+
     }
+
 }
