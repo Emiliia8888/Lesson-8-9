@@ -46,6 +46,7 @@ spec:
     - name: workspace-volume
       mountPath: /home/jenkins/agent
 
+
   volumes:
 
   - name: workspace-volume
@@ -102,13 +103,12 @@ spec:
                     echo "Checking project..."
 
                     test -f Dockerfile
+
                     echo "Dockerfile found."
 
                     test -f requirements.txt
-                    echo "requirements.txt found."
 
-                    test -f charts/django-app/values.yaml
-                    echo "Helm values.yaml found."
+                    echo "requirements.txt found."
                     '''
 
                 }
@@ -116,6 +116,7 @@ spec:
             }
 
         }
+
 
 
         stage('Build Docker Image with Kaniko') {
@@ -142,6 +143,7 @@ spec:
         }
 
 
+
         stage('Update Helm Values') {
 
             steps {
@@ -152,11 +154,34 @@ spec:
 
                     echo "Updating image tag..."
 
+
                     sed -i "s/tag: .*/tag: ${IMAGE_TAG}/" charts/django-app/values.yaml
+
 
                     echo "Updated values.yaml:"
 
                     cat charts/django-app/values.yaml
+
+
+
+                    git config user.email "jenkins@localhost"
+
+                    git config user.name "Jenkins"
+
+
+
+                    git add charts/django-app/values.yaml
+
+
+
+                    git commit \
+                    -m "Update django image tag to ${IMAGE_TAG}" \
+                    || echo "No changes to commit"
+
+
+
+                    git push origin HEAD:main
+
 
                     '''
 
@@ -167,7 +192,9 @@ spec:
         }
 
 
+
     }
+
 
 
     post {
