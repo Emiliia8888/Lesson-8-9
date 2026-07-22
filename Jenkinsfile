@@ -166,15 +166,14 @@ spec:
 
                     sh '''
 
-                    echo "Preparing git workspace"
+                    echo "Cloning repository for GitOps update"
+
+                    rm -rf gitops-repo
+
+                    git clone https://github.com/Emiliia8888/Lesson-8-9.git gitops-repo
 
 
-                    if [ ! -d ".git" ]; then
-
-                        git clone https://github.com/Emiliia8888/Lesson-8-9.git .
-
-                    fi
-
+                    cd gitops-repo
 
 
                     echo "Updating image tag..."
@@ -183,30 +182,21 @@ spec:
                     sed -i "s/tag: .*/tag: ${IMAGE_TAG}/" charts/django-app/values.yaml
 
 
-
                     echo "Current values.yaml:"
-
                     cat charts/django-app/values.yaml
 
 
-
                     git config user.email "jenkins@localhost"
-
                     git config user.name "Jenkins"
-
 
 
                     git add charts/django-app/values.yaml
 
 
-
-                    git commit \
-                    -m "Update django image tag to ${IMAGE_TAG}" \
-                    || echo "No changes"
+                    git commit -m "Update django image tag to ${IMAGE_TAG}" || echo "No changes"
 
 
-
-                    git push origin HEAD:main
+                    git push origin main
 
 
                     '''
