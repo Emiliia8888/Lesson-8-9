@@ -1,4 +1,0 @@
-
-Warning: Deprecated Parameter
-
-The parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile" instead.
