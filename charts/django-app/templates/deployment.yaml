@@ -27,6 +27,23 @@ spec:
         ports:
         - containerPort: {{ .Values.containerPort }}
 
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.containerPort }}
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.containerPort }}
+          initialDelaySeconds: 30
+          periodSeconds: 20
+
         env:
         - name: DJANGO_SETTINGS_MODULE
           value: "core.settings"
