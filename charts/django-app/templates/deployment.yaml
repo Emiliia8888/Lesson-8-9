@@ -49,6 +49,8 @@ spec:
           runAsGroup: 33
           runAsNonRoot: true
           allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
           capabilities:
             drop:
               - ALL
