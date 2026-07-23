@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: django-app-migrate
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+
+spec:
+  backoffLimit: 3
+
+  template:
+    spec:
+      restartPolicy: Never
+
+      containers:
+      - name: migrate
+
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+
+        command:
+        - python
+        - manage.py
+        - migrate
+
+        env:
+        - name: DJANGO_SETTINGS_MODULE
+          value: "core.settings"
+
+        - name: DB_HOST
+          value: "{{ .Release.Name }}-postgresql"
+
+        - name: DB_NAME
+          value: "{{ .Values.postgresql.auth.database }}"
+
+        - name: DB_USER
+          value: "{{ .Values.postgresql.auth.username }}"
+
+        - name: DB_PASSWORD
+          value: "{{ .Values.postgresql.auth.password }}"
+
+        - name: DB_PORT
+          value: "5432"
