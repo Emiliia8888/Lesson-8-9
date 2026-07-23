@@ -29,7 +29,8 @@ module "aws_eks" {
   create_cluster_security_group = false
   create_node_security_group    = false
 
-  cluster_security_group_id = "sg-0cb6e122fd54f790d"
+  cluster_security_group_id = "sg-075ac93fc2d305bee"
+  node_security_group_id    = "sg-0b7fbac763305f57e"
 
 
   #
@@ -37,12 +38,16 @@ module "aws_eks" {
   #
   eks_managed_node_groups = {
     main = {
-      min_size       = 1
-      max_size       = 3
-      desired_size   = 2
+      min_size     = 1
+      max_size     = 3
+      desired_size = 2
 
       instance_types = [
         "t3.medium"
+      ]
+
+      vpc_security_group_ids = [
+        "sg-0b7fbac763305f57e"
       ]
     }
   }
