@@ -32,16 +32,31 @@ spec:
           value: "core.settings"
 
         - name: DB_HOST
-          value: "{{ .Release.Name }}-postgresql"
+          valueFrom:
+            secretKeyRef:
+              name: django-postgresql
+              key: host
 
         - name: DB_NAME
-          value: "{{ .Values.postgresql.auth.database }}"
+          valueFrom:
+            secretKeyRef:
+              name: django-postgresql
+              key: database
 
         - name: DB_USER
-          value: "{{ .Values.postgresql.auth.username }}"
+          valueFrom:
+            secretKeyRef:
+              name: django-postgresql
+              key: username
 
         - name: DB_PASSWORD
-          value: "{{ .Values.postgresql.auth.password }}"
+          valueFrom:
+            secretKeyRef:
+              name: django-postgresql
+              key: password
 
         - name: DB_PORT
-          value: "5432"
+          valueFrom:
+            secretKeyRef:
+              name: django-postgresql
+              key: port
