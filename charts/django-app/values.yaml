@@ -7,3 +7,9 @@ replicaCount: 1
 
 containerPort: 8000
 
+postgresql:
+  enabled: true
+  auth:
+    username: django
+    password: django_password
+    database: django_db
