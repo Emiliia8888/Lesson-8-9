@@ -10,7 +10,7 @@ containerPort: 8000
 postgresql:
   enabled: true
   image:
-    tag: 16.4.0-debian-12-r15
+    tag: latest
   auth:
     username: django
     password: django_password
