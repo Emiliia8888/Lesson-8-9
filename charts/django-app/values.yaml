@@ -9,6 +9,19 @@ containerPort: 8000
 
 postgresql:
   enabled: true
+
+  primary:
+    networkPolicy:
+      enabled: true
+      allowExternal: false
+      extraIngress:
+        - ports:
+            - port: 5432
+          from:
+            - podSelector:
+                matchLabels:
+                  app: django-app
+
   image:
     tag: latest
   auth:
