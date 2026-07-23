@@ -19,6 +19,8 @@ spec:
         app: django-app
 
     spec:
+      serviceAccountName: django-app
+
       containers:
       - name: django-app
 
