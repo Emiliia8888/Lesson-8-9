@@ -312,13 +312,41 @@ Terraform Structure
 Terraform Validation
 Infrastructure deployment:
 terraform validate
+
+## Terraform
+
+```bash
+terraform init
+terraform validate
 terraform plan
 terraform apply
+```
 
 Terraform manages:
 AWS infrastructure
 Kubernetes resources
 Helm releases
+
+## Helm
+
+```bash
+helm dependency update charts/django-app
+helm template charts/django-app
+```
+
+## Kubernetes
+
+```bash
+kubectl get nodes
+kubectl get pods -A
+kubectl get svc -A
+```
+
+## Argo CD Verification
+
+```bash
+kubectl get application django-app -n argocd
+```
 
 Deployment Flow
 Developer pushes code to GitHub
