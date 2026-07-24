@@ -55,3 +55,33 @@ variable "master_password" {
   type        = string
   sensitive   = true
 }
+
+variable "backup_retention_period" {
+  description = "Number of days to retain automated backups"
+  type        = number
+  default     = 7
+}
+
+variable "backup_window" {
+  description = "Preferred backup window"
+  type        = string
+  default     = "03:00-04:00"
+}
+
+variable "maintenance_window" {
+  description = "Preferred maintenance window"
+  type        = string
+  default     = "sun:04:00-sun:05:00"
+}
+
+variable "deletion_protection" {
+  description = "Enable deletion protection"
+  type        = bool
+  default     = true
+}
+
+variable "skip_final_snapshot" {
+  description = "Skip final snapshot on deletion"
+  type        = bool
+  default     = false
+}
