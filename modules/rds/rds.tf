@@ -1,14 +1,14 @@
 resource "aws_db_instance" "this" {
   count = var.use_aurora ? 0 : 1
 
-  identifier           = "${var.environment}-${var.name}-rds"
+  identifier = "dev-django-db-rds"
   engine               = var.engine
   engine_version       = var.engine_version
   instance_class       = var.instance_class
   allocated_storage    = 20
   storage_type         = "gp3"
 
-  db_name              = var.db_name
+  db_name = "django_db"
   username             = var.username
   password             = var.password
   port                 = var.db_port

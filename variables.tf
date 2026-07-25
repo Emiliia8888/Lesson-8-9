@@ -12,6 +12,6 @@ variable "environment" {
 
 variable "project_name" {
   type        = string
-  default     = "django-infra"
+  default     = "django-db"
   description = "Назва проєкту"
 }

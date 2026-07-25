@@ -1,5 +1,5 @@
 resource "aws_security_group" "db" {
-  name        = "${var.environment}-${var.name}-db-sg"
+  name        = "dev-django-db-db-sg"
   description = "Security group for database"
   vpc_id      = var.vpc_id
 
