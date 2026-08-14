@@ -24,20 +24,19 @@ variable "engine" {
   default = "postgres"
 }
 
-# Змінено з 15.4 на 15, щоб AWS сам обрав актуальну мінорну версію
 variable "engine_version" {
   type    = string
-  default = "15"
+  default = "16"
 }
 
 variable "instance_class" {
   type    = string
-  default = "db.t4g.medium"
+  default = "db.t3.micro"
 }
 
 variable "parameter_group_family" {
   type    = string
-  default = "postgres15"
+  default = "postgres16"
 }
 
 variable "db_name" {

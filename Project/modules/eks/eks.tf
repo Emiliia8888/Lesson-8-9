@@ -1,4 +1,4 @@
-	module "aws_eks" {
+module "aws_eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 

@@ -4,7 +4,6 @@ resource "kubernetes_namespace_v1" "argocd" {
   }
 }
 
-
 resource "helm_release" "argocd" {
   name       = "argocd"
   repository = "https://argoproj.github.io/argo-helm"
@@ -22,10 +21,31 @@ resource "helm_release" "argocd" {
   ]
 }
 
+resource "kubernetes_service_v1" "argocd_server_lb" {
+  metadata {
+    name      = "argocd-server-external"
+    namespace = "argocd"
+  }
 
-#resource "helm_release" "argocd_apps" {
-#  name       = "argocd-apps"
-#  chart      = "${path.module}/charts/argocd-apps"
-#  namespace  = kubernetes_namespace_v1.argocd.metadata[0].name
-#  depends_on = [helm_release.argo_cd]
-#}
+  spec {
+    selector = {
+      "app.kubernetes.io/name" = "argocd-server"
+    }
+
+    type = "LoadBalancer"
+
+    load_balancer_class = "service.k8s.aws/nlb"
+
+    port {
+      port        = 80
+      target_port = 8080
+      protocol    = "TCP"
+    }
+  }
+
+  wait_for_load_balancer = true
+
+  depends_on = [
+    helm_release.argocd
+  ]
+}
