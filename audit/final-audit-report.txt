@@ -1,0 +1,571 @@
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  ~ update in-place
+ <= read (data resources)
+
+Terraform will perform the following actions:
+
+  # kubernetes_storage_class_v1.gp3 will be updated in-place
+  ~ resource "kubernetes_storage_class_v1" "gp3" {
+        id                     = "gp3"
+        # (6 unchanged attributes hidden)
+
+      ~ metadata {
+          ~ annotations      = {
+              + "storageclass.kubernetes.io/is-default-class" = "true"
+            }
+            name             = "gp3"
+            # (5 unchanged attributes hidden)
+        }
+    }
+
+  # module.argo_cd.helm_release.argocd will be updated in-place
+  ~ resource "helm_release" "argocd" {
+      ~ id                         = "argocd" -> (known after apply)
+      ~ metadata                   = {
+          ~ app_version    = "v2.13.1" -> (known after apply)
+          ~ chart          = "argo-cd" -> (known after apply)
+          ~ first_deployed = 1784290647 -> (known after apply)
+          ~ last_deployed  = 1786229939 -> (known after apply)
+          ~ name           = "argocd" -> (known after apply)
+          ~ namespace      = "argocd" -> (known after apply)
+          ~ notes          = <<-EOT
+                In order to access the server UI you have the following options:
+                
+                1. kubectl port-forward service/argocd-server -n argocd 8080:443
+                
+                    and then open the browser on http://localhost:8080 and accept the certificate
+                
+                2. enable ingress in the values file `server.ingress.enabled` and either
+                      - Add the annotation for ssl passthrough: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-1-ssl-passthrough
+                      - Set the `configs.params."server.insecure"` in the values file and terminate SSL at your ingress: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-2-multiple-ingress-objects-and-hosts
+                
+                
+                After reaching the UI the first time you can login with username: admin and the random password generated during the installation. You can find the password by running:
+                
+                kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+                
+                (You should delete the initial secret afterwards as suggested by the Getting Started Guide: https://argo-cd.readthedocs.io/en/stable/getting_started/#4-login-using-the-cli)
+            EOT -> (known after apply)
+          ~ revision       = 2 -> (known after apply)
+          ~ values         = jsonencode(
+                {
+                  - server = {
+                      - extraArgs = [
+                          - "--insecure",
+                        ]
+                      - service   = {
+                          - type = "LoadBalancer"
+                        }
+                    }
+                }
+            ) -> (known after apply)
+          ~ version        = "7.7.7" -> (known after apply)
+        } -> (known after apply)
+        name                       = "argocd"
+      + values                     = [
+          + <<-EOT
+                server:
+                  service:
+                    type: LoadBalancer
+                  extraArgs:
+                    - --insecure
+            EOT,
+        ]
+      ~ version                    = "7.7.7" -> "7.7.16"
+        # (28 unchanged attributes hidden)
+    }
+
+  # module.aws_load_balancer_controller.data.aws_caller_identity.current will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "aws_caller_identity" "current" {
+      + account_id = (known after apply)
+      + arn        = (known after apply)
+      + id         = (known after apply)
+      + user_id    = (known after apply)
+    }
+
+  # module.aws_load_balancer_controller.data.aws_iam_policy_document.aws_load_balancer_controller_assume_role will be read during apply
+  # (config refers to values not yet known)
+ <= data "aws_iam_policy_document" "aws_load_balancer_controller_assume_role" {
+      + id            = (known after apply)
+      + json          = (known after apply)
+      + minified_json = (known after apply)
+
+      + statement {
+          + actions = [
+              + "sts:AssumeRoleWithWebIdentity",
+            ]
+          + effect  = "Allow"
+
+          + condition {
+              + test     = "StringEquals"
+              + values   = [
+                  + "system:serviceaccount:kube-system:aws-load-balancer-controller",
+                ]
+              + variable = "oidc.eks.eu-central-1.amazonaws.com/id/09C314552F181D184EF107C6FB70BD9C:sub"
+            }
+
+          + principals {
+              + identifiers = [
+                  + (known after apply),
+                ]
+              + type        = "Federated"
+            }
+        }
+    }
+
+  # module.aws_load_balancer_controller.aws_iam_role.aws_load_balancer_controller will be updated in-place
+  ~ resource "aws_iam_role" "aws_load_balancer_controller" {
+      ~ assume_role_policy    = jsonencode(
+            {
+              - Statement = [
+                  - {
+                      - Action    = "sts:AssumeRoleWithWebIdentity"
+                      - Condition = {
+                          - StringEquals = {
+                              - "oidc.eks.eu-central-1.amazonaws.com/id/09C314552F181D184EF107C6FB70BD9C:sub" = "system:serviceaccount:kube-system:aws-load-balancer-controller"
+                            }
+                        }
+                      - Effect    = "Allow"
+                      - Principal = {
+                          - Federated = "arn:aws:iam::034255117140:oidc-provider/oidc.eks.eu-central-1.amazonaws.com/id/09C314552F181D184EF107C6FB70BD9C"
+                        }
+                    },
+                ]
+              - Version   = "2012-10-17"
+            }
+        ) -> (known after apply)
+        id                    = "dev-eks-cluster-aws-load-balancer-controller-role"
+        name                  = "dev-eks-cluster-aws-load-balancer-controller-role"
+        tags                  = {}
+        # (11 unchanged attributes hidden)
+    }
+
+  # module.eks.data.aws_caller_identity.current will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "aws_caller_identity" "current" {
+      + account_id = (known after apply)
+      + arn        = (known after apply)
+      + id         = (known after apply)
+      + user_id    = (known after apply)
+    }
+
+  # module.eks.aws_iam_role.ebs_csi_driver will be updated in-place
+  ~ resource "aws_iam_role" "ebs_csi_driver" {
+      ~ assume_role_policy    = jsonencode(
+            {
+              - Statement = [
+                  - {
+                      - Action    = "sts:AssumeRoleWithWebIdentity"
+                      - Condition = {
+                          - StringEquals = {
+                              - "oidc.eks.eu-central-1.amazonaws.com/id/09C314552F181D184EF107C6FB70BD9C:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+                            }
+                        }
+                      - Effect    = "Allow"
+                      - Principal = {
+                          - Federated = "arn:aws:iam::034255117140:oidc-provider/oidc.eks.eu-central-1.amazonaws.com/id/09C314552F181D184EF107C6FB70BD9C"
+                        }
+                    },
+                ]
+              - Version   = "2012-10-17"
+            }
+        ) -> (known after apply)
+        id                    = "ebs-csi-driver-django-gitops-cluster"
+        name                  = "ebs-csi-driver-django-gitops-cluster"
+        tags                  = {}
+        # (11 unchanged attributes hidden)
+    }
+
+  # module.eks.aws_kms_key.eks will be updated in-place
+  ~ resource "aws_kms_key" "eks" {
+      + bypass_policy_lockout_safety_check = false
+      ~ description                        = "dev-eks-cluster cluster encryption key" -> "KMS key for EKS secrets encryption"
+        id                                 = "04d02d5e-5057-4698-80d0-d6ea44874a71"
+      ~ tags                               = {
+          + "Name"                  = "dev-eks-kms"
+          - "terraform-aws-modules" = "eks" -> null
+        }
+      ~ tags_all                           = {
+          + "Name"                  = "dev-eks-kms"
+          - "terraform-aws-modules" = "eks" -> null
+        }
+        # (12 unchanged attributes hidden)
+    }
+
+  # module.jenkins.data.aws_caller_identity.current will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "aws_caller_identity" "current" {
+      + account_id = (known after apply)
+      + arn        = (known after apply)
+      + id         = (known after apply)
+      + user_id    = (known after apply)
+    }
+
+  # module.jenkins.data.aws_iam_policy_document.jenkins_assume_role will be read during apply
+  # (config refers to values not yet known)
+ <= data "aws_iam_policy_document" "jenkins_assume_role" {
+      + id            = (known after apply)
+      + json          = (known after apply)
+      + minified_json = (known after apply)
+
+      + statement {
+          + actions = [
+              + "sts:AssumeRoleWithWebIdentity",
+            ]
+          + effect  = "Allow"
+
+          + condition {
+              + test     = "StringEquals"
+              + values   = [
+                  + "system:serviceaccount:jenkins:jenkins",
+                ]
+              + variable = "oidc.eks.eu-central-1.amazonaws.com/id/09C314552F181D184EF107C6FB70BD9C:sub"
+            }
+
+          + principals {
+              + identifiers = [
+                  + (known after apply),
+                ]
+              + type        = "Federated"
+            }
+        }
+    }
+
+  # module.jenkins.data.aws_iam_policy_document.jenkins_policy will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "aws_iam_policy_document" "jenkins_policy" {
+      + id            = (known after apply)
+      + json          = (known after apply)
+      + minified_json = (known after apply)
+
+      + statement {
+          + actions   = [
+              + "ecr:BatchCheckLayerAvailability",
+              + "ecr:CompleteLayerUpload",
+              + "ecr:DescribeRepositories",
+              + "ecr:GetAuthorizationToken",
+              + "ecr:GetDownloadUrlForLayer",
+              + "ecr:GetRepositoryPolicy",
+              + "ecr:InitiateLayerUpload",
+              + "ecr:ListImages",
+              + "ecr:PutImage",
+              + "ecr:UploadLayerPart",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + "*",
+            ]
+        }
+    }
+
+  # module.jenkins.aws_iam_role.jenkins will be updated in-place
+  ~ resource "aws_iam_role" "jenkins" {
+      ~ assume_role_policy    = jsonencode(
+            {
+              - Statement = [
+                  - {
+                      - Action    = "sts:AssumeRoleWithWebIdentity"
+                      - Condition = {
+                          - StringEquals = {
+                              - "oidc.eks.eu-central-1.amazonaws.com/id/09C314552F181D184EF107C6FB70BD9C:sub" = "system:serviceaccount:jenkins:jenkins"
+                            }
+                        }
+                      - Effect    = "Allow"
+                      - Principal = {
+                          - Federated = "arn:aws:iam::034255117140:oidc-provider/oidc.eks.eu-central-1.amazonaws.com/id/09C314552F181D184EF107C6FB70BD9C"
+                        }
+                    },
+                ]
+              - Version   = "2012-10-17"
+            }
+        ) -> (known after apply)
+        id                    = "dev-eks-cluster-jenkins-role"
+        name                  = "dev-eks-cluster-jenkins-role"
+        tags                  = {}
+        # (11 unchanged attributes hidden)
+
+        # (1 unchanged block hidden)
+    }
+
+  # module.jenkins.aws_iam_role_policy.jenkins will be updated in-place
+  ~ resource "aws_iam_role_policy" "jenkins" {
+        id          = "dev-eks-cluster-jenkins-role:dev-eks-cluster-jenkins-policy"
+        name        = "dev-eks-cluster-jenkins-policy"
+      ~ policy      = jsonencode(
+            {
+              - Statement = [
+                  - {
+                      - Action   = [
+                          - "ecr:UploadLayerPart",
+                          - "ecr:PutImage",
+                          - "ecr:ListImages",
+                          - "ecr:InitiateLayerUpload",
+                          - "ecr:GetRepositoryPolicy",
+                          - "ecr:GetDownloadUrlForLayer",
+                          - "ecr:GetAuthorizationToken",
+                          - "ecr:DescribeRepositories",
+                          - "ecr:CompleteLayerUpload",
+                          - "ecr:BatchCheckLayerAvailability",
+                        ]
+                      - Effect   = "Allow"
+                      - Resource = "*"
+                    },
+                ]
+              - Version   = "2012-10-17"
+            }
+        ) -> (known after apply)
+        # (2 unchanged attributes hidden)
+    }
+
+  # module.monitoring.helm_release.kube_prometheus_stack will be updated in-place
+  ~ resource "helm_release" "kube_prometheus_stack" {
+      ~ id                         = "kube-prometheus-stack" -> (known after apply)
+      ~ metadata                   = {
+          ~ app_version    = "v0.93.0" -> (known after apply)
+          ~ chart          = "kube-prometheus-stack" -> (known after apply)
+          ~ first_deployed = 1786229946 -> (known after apply)
+          ~ last_deployed  = 1786272898 -> (known after apply)
+          ~ name           = "kube-prometheus-stack" -> (known after apply)
+          ~ namespace      = "monitoring" -> (known after apply)
+          ~ notes          = <<-EOT
+                1. Get your 'admin' user password by running:
+                
+                   kubectl get secret --namespace monitoring kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+                
+                
+                2. The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+                
+                   kube-prometheus-stack-grafana.monitoring.svc.cluster.local
+                
+                   Get the Grafana URL to visit by running these commands in the same shell:
+                   NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+                        You can watch the status of by running 'kubectl get svc --namespace monitoring -w kube-prometheus-stack-grafana'
+                     export SERVICE_IP=$(kubectl get svc --namespace monitoring kube-prometheus-stack-grafana -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+                     http://$SERVICE_IP:80
+                
+                3. Login with the password from step 1 and the username: admin
+                #################################################################################
+                ######   WARNING: Persistence is disabled!!! You will lose your data when   #####
+                ######            the Grafana pod is terminated.                            #####
+                #################################################################################
+                
+                kube-prometheus-stack has been installed. Check its status by running:
+                  kubectl --namespace monitoring get pods -l "release=kube-prometheus-stack"
+                
+                Get Grafana 'admin' user password by running:
+                
+                  kubectl --namespace monitoring get secrets kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+                
+                Access Grafana local instance:
+                
+                  export POD_NAME=$(kubectl --namespace monitoring get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
+                  kubectl --namespace monitoring port-forward $POD_NAME 3000
+                
+                Get your grafana admin user password by running:
+                
+                  kubectl get secret --namespace monitoring -l app.kubernetes.io/component=admin-secret -o jsonpath="{.items[0].data.admin-password}" | base64 --decode ; echo
+                
+                
+                Visit https://github.com/prometheus-operator/kube-prometheus for instructions on how to create & configure Alertmanager and Prometheus instances using the Operator.
+                
+                kube-state-metrics is a simple service that listens to the Kubernetes API server and generates metrics about the state of the objects.
+                The exposed metrics can be found here:
+                https://github.com/kubernetes/kube-state-metrics/blob/master/docs/README.md#exposed-metrics
+                
+                The metrics are exported on the HTTP endpoint /metrics on the listening port.
+                In your case, kube-prometheus-stack-kube-state-metrics.monitoring.svc.cluster.local:8080/metrics
+                
+                They are served either as plaintext or protobuf depending on the Accept header.
+                They are designed to be consumed either by Prometheus itself or by a scraper that is compatible with scraping a Prometheus client endpoint.
+                
+                1. Get the application URL by running these commands:
+                  export POD_NAME=$(kubectl get pods --namespace monitoring -l "app.kubernetes.io/name=prometheus-node-exporter,app.kubernetes.io/instance=kube-prometheus-stack" -o jsonpath="{.items[0].metadata.name}")
+                  echo "Visit http://127.0.0.1:9100 to use your application"
+                  kubectl port-forward --namespace monitoring $POD_NAME 9100
+            EOT -> (known after apply)
+          ~ revision       = 2 -> (known after apply)
+          ~ values         = jsonencode(
+                {
+                  - alertmanager     = {
+                      - enabled = true
+                    }
+                  - grafana          = {
+                      - enabled = true
+                      - service = {
+                          - annotations = {
+                              - "service.beta.kubernetes.io/aws-load-balancer-scheme" = "internet-facing"
+                            }
+                          - type        = "LoadBalancer"
+                        }
+                    }
+                  - kubeStateMetrics = {
+                      - enabled = true
+                    }
+                  - nodeExporter     = {
+                      - enabled = true
+                    }
+                  - prometheus       = {
+                      - enabled = true
+                    }
+                }
+            ) -> (known after apply)
+          ~ version        = "88.2.0" -> (known after apply)
+        } -> (known after apply)
+        name                       = "kube-prometheus-stack"
+      + repository                 = "https://prometheus-community.github.io/helm-charts"
+      + values                     = [
+          + <<-EOT
+                alertmanager:
+                  enabled: true
+                
+                grafana:
+                  enabled: true
+                  service:
+                    type: LoadBalancer
+                    annotations:
+                      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+                
+                kubeStateMetrics:
+                  enabled: true
+                
+                nodeExporter:
+                  enabled: true
+                
+                prometheus:
+                  enabled: true
+            EOT,
+        ]
+        # (29 unchanged attributes hidden)
+    }
+
+  # module.s3_backend.aws_s3_bucket_versioning.state_versioning will be updated in-place
+  ~ resource "aws_s3_bucket_versioning" "state_versioning" {
+        id                    = "emiliia-ft-state-lesson-99"
+        # (3 unchanged attributes hidden)
+
+      ~ versioning_configuration {
+          ~ status     = "Suspended" -> "Enabled"
+            # (1 unchanged attribute hidden)
+        }
+    }
+
+  # module.vpc.aws_eip.nat will be updated in-place
+  ~ resource "aws_eip" "nat" {
+        id                       = "eipalloc-066a0c45fecc689f3"
+      ~ tags                     = {
+          ~ "Name" = "django-gitops-vpc-eu-central-1a" -> "django-gitops-nat-eip"
+        }
+      ~ tags_all                 = {
+          ~ "Name" = "django-gitops-vpc-eu-central-1a" -> "django-gitops-nat-eip"
+        }
+        # (18 unchanged attributes hidden)
+    }
+
+  # module.vpc.aws_internet_gateway.this will be updated in-place
+  ~ resource "aws_internet_gateway" "this" {
+        id       = "igw-02fc00601920afdbb"
+      ~ tags     = {
+          ~ "Name" = "django-gitops-vpc" -> "django-gitops-igw"
+        }
+      ~ tags_all = {
+          ~ "Name" = "django-gitops-vpc" -> "django-gitops-igw"
+        }
+        # (4 unchanged attributes hidden)
+    }
+
+  # module.vpc.aws_nat_gateway.this will be updated in-place
+  ~ resource "aws_nat_gateway" "this" {
+        id                                 = "nat-0c6382216d15c5479"
+      ~ tags                               = {
+          ~ "Name" = "django-gitops-vpc-eu-central-1a" -> "django-gitops-nat-gw"
+        }
+      ~ tags_all                           = {
+          ~ "Name" = "django-gitops-vpc-eu-central-1a" -> "django-gitops-nat-gw"
+        }
+        # (14 unchanged attributes hidden)
+    }
+
+  # module.vpc.aws_route_table.private will be updated in-place
+  ~ resource "aws_route_table" "private" {
+        id               = "rtb-0c74d10219adb94b7"
+      ~ tags             = {
+          ~ "Name" = "django-gitops-vpc-private" -> "django-gitops-private-rt"
+        }
+      ~ tags_all         = {
+          ~ "Name" = "django-gitops-vpc-private" -> "django-gitops-private-rt"
+        }
+        # (6 unchanged attributes hidden)
+    }
+
+  # module.vpc.aws_route_table.public will be updated in-place
+  ~ resource "aws_route_table" "public" {
+        id               = "rtb-0a87f2910dc271d97"
+      ~ tags             = {
+          ~ "Name" = "django-gitops-vpc-public" -> "django-gitops-public-rt"
+        }
+      ~ tags_all         = {
+          ~ "Name" = "django-gitops-vpc-public" -> "django-gitops-public-rt"
+        }
+        # (6 unchanged attributes hidden)
+    }
+
+  # module.vpc.aws_subnet.private[0] will be updated in-place
+  ~ resource "aws_subnet" "private" {
+        id                                             = "subnet-0c8ba5309ccef069a"
+      ~ tags                                           = {
+          ~ "Name"                            = "django-gitops-vpc-private-eu-central-1a" -> "django-gitops-private-0"
+            "kubernetes.io/role/internal-elb" = "1"
+        }
+      ~ tags_all                                       = {
+          ~ "Name"                            = "django-gitops-vpc-private-eu-central-1a" -> "django-gitops-private-0"
+            # (1 unchanged element hidden)
+        }
+        # (20 unchanged attributes hidden)
+    }
+
+  # module.vpc.aws_subnet.private[1] will be updated in-place
+  ~ resource "aws_subnet" "private" {
+        id                                             = "subnet-0fff89a05a16721f8"
+      ~ tags                                           = {
+          ~ "Name"                            = "django-gitops-vpc-private-eu-central-1b" -> "django-gitops-private-1"
+            "kubernetes.io/role/internal-elb" = "1"
+        }
+      ~ tags_all                                       = {
+          ~ "Name"                            = "django-gitops-vpc-private-eu-central-1b" -> "django-gitops-private-1"
+            # (1 unchanged element hidden)
+        }
+        # (20 unchanged attributes hidden)
+    }
+
+  # module.vpc.aws_subnet.public[0] will be updated in-place
+  ~ resource "aws_subnet" "public" {
+        id                                             = "subnet-0e0dd8e8cc9d1f55f"
+      ~ tags                                           = {
+          ~ "Name"                   = "django-gitops-vpc-public-eu-central-1a" -> "django-gitops-public-0"
+            "kubernetes.io/role/elb" = "1"
+        }
+      ~ tags_all                                       = {
+          ~ "Name"                   = "django-gitops-vpc-public-eu-central-1a" -> "django-gitops-public-0"
+            # (1 unchanged element hidden)
+        }
+        # (20 unchanged attributes hidden)
+    }
+
+  # module.vpc.aws_subnet.public[1] will be updated in-place
+  ~ resource "aws_subnet" "public" {
+        id                                             = "subnet-0f7154d522a7a3703"
+      ~ tags                                           = {
+          ~ "Name"                   = "django-gitops-vpc-public-eu-central-1b" -> "django-gitops-public-1"
+            "kubernetes.io/role/elb" = "1"
+        }
+      ~ tags_all                                       = {
+          ~ "Name"                   = "django-gitops-vpc-public-eu-central-1b" -> "django-gitops-public-1"
+            # (1 unchanged element hidden)
+        }
+        # (20 unchanged attributes hidden)
+    }
+
+Plan: 0 to add, 18 to change, 0 to destroy.
