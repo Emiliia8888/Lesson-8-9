@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 resource "kubernetes_namespace_v1" "jenkins" {
   metadata {
     name = "jenkins"
@@ -15,13 +17,13 @@ data "aws_iam_policy_document" "jenkins_assume_role" {
     principals {
       type = "Federated"
       identifiers = [
-        "arn:aws:iam::034255117140:oidc-provider/oidc.eks.eu-central-1.amazonaws.com/id/09C314552F181D184EF107C6FB70BD9C"
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${replace(var.oidc_issuer, "https://", "")}"
       ]
     }
 
     condition {
       test     = "StringEquals"
-      variable = "oidc.eks.eu-central-1.amazonaws.com/id/09C314552F181D184EF107C6FB70BD9C:sub"
+      variable = "${replace(var.oidc_issuer, "https://", "")}:sub"
       values = [
         "system:serviceaccount:jenkins:jenkins"
       ]

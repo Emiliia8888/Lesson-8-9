@@ -8,11 +8,11 @@ resource "helm_release" "aws_load_balancer_controller" {
   set = [
     {
       name  = "clusterName"
-      value = "dev-eks-cluster"
+      value = var.cluster_name
     },
     {
       name  = "vpcId"
-      value = "vpc-0a193c45e151d961d"
+      value = var.vpc_id
     },
     {
       name  = "serviceAccount.create"

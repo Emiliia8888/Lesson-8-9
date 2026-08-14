@@ -15,11 +15,11 @@ resource "aws_db_instance" "this" {
   username = "django_admin"
   password = var.password
 
-lifecycle {
-  ignore_changes = [
-    password,
-  ]
-}
+  lifecycle {
+    ignore_changes = [
+      password,
+    ]
+  }
 
   port = var.db_port
 

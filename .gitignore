@@ -28,3 +28,7 @@ __pycache__/
 .DS_Store
 *.backup
 tfplan*
+
+# Kubernetes secrets
+charts/django-app/secret.yaml
+charts/django-app/templates/secret.yaml

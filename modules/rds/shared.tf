@@ -24,12 +24,8 @@ resource "aws_security_group" "db" {
 }
 
 resource "aws_db_subnet_group" "db" {
-  name = "django-rds-subnet-group"
-  subnet_ids = [
-    "subnet-0dc38866a0ae9363a",
-    "subnet-09ee881e76fc49338",
-    "subnet-0f594a6bfc3a96055",
-  ]
+  name       = "django-rds-subnet-group"
+  subnet_ids = var.subnet_ids
 
   tags = {
     Name = "django-rds-subnet-group"
@@ -40,7 +36,7 @@ resource "aws_db_parameter_group" "rds" {
   count = var.use_aurora ? 0 : 1
 
   name   = "django-rds-parameter-group"
-  family = "postgres16"
+  family = var.parameter_group_family
 
   parameter {
     name         = "work_mem"

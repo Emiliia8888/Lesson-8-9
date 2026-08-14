@@ -14,7 +14,7 @@ resource "aws_eks_cluster" "this" {
     resources = ["secrets"]
 
     provider {
-      key_arn = "arn:aws:kms:eu-central-1:034255117140:key/04d02d5e-5057-4698-80d0-d6ea44874a71"
+      key_arn = aws_kms_key.eks.arn
     }
   }
 
@@ -80,11 +80,11 @@ resource "aws_iam_role" "ebs_csi_driver" {
         Effect = "Allow"
         Action = "sts:AssumeRoleWithWebIdentity"
         Principal = {
-          Federated = "arn:aws:iam::034255117140:oidc-provider/oidc.eks.eu-central-1.amazonaws.com/id/09C314552F181D184EF107C6FB70BD9C"
+          Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${replace(aws_eks_cluster.this.identity[0].oidc[0].issuer, "https://", "")}"
         }
         Condition = {
           StringEquals = {
-            "oidc.eks.eu-central-1.amazonaws.com/id/09C314552F181D184EF107C6FB70BD9C:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+            "${replace(aws_eks_cluster.this.identity[0].oidc[0].issuer, "https://", "")}:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
           }
         }
       }

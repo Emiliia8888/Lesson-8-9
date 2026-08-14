@@ -22,14 +22,9 @@ provider "aws" {
 }
 
 
-data "aws_eks_cluster" "existing" {
-  name = "dev-eks-cluster"
-}
-
-
 provider "kubernetes" {
-  host                   = data.aws_eks_cluster.existing.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.existing.certificate_authority[0].data)
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
@@ -40,7 +35,7 @@ provider "kubernetes" {
       "eks",
       "get-token",
       "--cluster-name",
-      data.aws_eks_cluster.existing.name,
+      module.eks.cluster_name,
       "--region",
       var.region
     ]
@@ -50,8 +45,8 @@ provider "kubernetes" {
 
 provider "helm" {
   kubernetes = {
-    host                   = data.aws_eks_cluster.existing.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.existing.certificate_authority[0].data)
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 
     exec = {
       api_version = "client.authentication.k8s.io/v1beta1"
@@ -62,7 +57,7 @@ provider "helm" {
         "eks",
         "get-token",
         "--cluster-name",
-        data.aws_eks_cluster.existing.name,
+        module.eks.cluster_name,
         "--region",
         var.region
       ]
@@ -101,6 +96,8 @@ module "monitoring" {
 module "jenkins" {
   source = "./modules/jenkins"
 
+  oidc_issuer = module.eks.cluster_oidc_issuer
+
   depends_on = [
     module.eks
   ]
@@ -123,15 +120,16 @@ module "rds" {
   environment = var.environment
 
   vpc_id = "vpc-0b54945bf169ee3e3"
+
   subnet_ids = [
-    "subnet-0dc38866a0ae9363a",
     "subnet-09ee881e76fc49338",
-    "subnet-0f594a6bfc3a96055",
+    "subnet-0dc38866a0ae9363a",
+    "subnet-0f594a6bfc3a96055"
   ]
 
   db_name  = "django"
   username = "django_admin"
-  password = "REDACTED-TERRAFORM-DB-PASSWORD"
+  password = var.db_password
 
   engine_version         = "16"
   instance_class         = "db.t3.micro"
@@ -141,7 +139,6 @@ module "rds" {
     module.vpc
   ]
 }
-
 
 module "ecr" {
   source = "./modules/ecr"
@@ -200,4 +197,13 @@ resource "aws_secretsmanager_secret_version" "django_postgresql" {
 
 module "aws_load_balancer_controller" {
   source = "./modules/aws_load_balancer_controller"
+
+  cluster_name = module.eks.cluster_name
+  vpc_id       = module.vpc.vpc_id
+  oidc_issuer  = module.eks.cluster_oidc_issuer
+
+  depends_on = [
+    module.eks,
+    module.vpc
+  ]
 }

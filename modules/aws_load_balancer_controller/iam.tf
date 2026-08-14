@@ -1,9 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_eks_cluster" "existing" {
-  name = "dev-eks-cluster"
-}
-
 data "aws_iam_policy_document" "aws_load_balancer_controller_assume_role" {
   statement {
     effect = "Allow"
@@ -16,13 +12,13 @@ data "aws_iam_policy_document" "aws_load_balancer_controller_assume_role" {
       type = "Federated"
 
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${replace(data.aws_eks_cluster.existing.identity[0].oidc[0].issuer, "https://", "")}"
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${replace(var.oidc_issuer, "https://", "")}"
       ]
     }
 
     condition {
       test     = "StringEquals"
-      variable = "${replace(data.aws_eks_cluster.existing.identity[0].oidc[0].issuer, "https://", "")}:sub"
+      variable = "${replace(var.oidc_issuer, "https://", "")}:sub"
 
       values = [
         "system:serviceaccount:kube-system:aws-load-balancer-controller",
@@ -32,12 +28,12 @@ data "aws_iam_policy_document" "aws_load_balancer_controller_assume_role" {
 }
 
 resource "aws_iam_policy" "aws_load_balancer_controller" {
-  name   = "dev-eks-cluster-AWSLoadBalancerControllerIAMPolicy"
+  name   = "${var.cluster_name}-AWSLoadBalancerControllerIAMPolicy"
   policy = file("${path.module}/iam-policy.json")
 }
 
 resource "aws_iam_role" "aws_load_balancer_controller" {
-  name               = "dev-eks-cluster-aws-load-balancer-controller-role"
+  name               = "${var.cluster_name}-aws-load-balancer-controller-role"
   assume_role_policy = data.aws_iam_policy_document.aws_load_balancer_controller_assume_role.json
 }
 

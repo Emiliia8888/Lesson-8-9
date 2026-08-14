@@ -15,3 +15,8 @@ variable "project_name" {
   default     = "django-db"
   description = "Назва проєкту"
 }
+
+variable "db_password" {
+  type      = string
+  sensitive = true
+}
