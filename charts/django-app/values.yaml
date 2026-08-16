@@ -16,13 +16,12 @@ resources:
 django:
   debug: "False"
   allowedHosts: "*"
-  secretKey: "django-insecure-yoursupersecretproductionkey"
+  # SECRET_KEY is supplied by Kubernetes Secret
 
 db:
-  name: "django_db"
-  user: "postgres"
-  password: "REDACTED-DJANGO-PASSWORD"
-  host: "dev-django-db-rds.ctskymysi6zv.eu-central-1.rds.amazonaws.com"
+  name: "django"
+  user: "django_admin"
+  host: "django-rds-instance.ctskymysi6zv.eu-central-1.rds.amazonaws.com"
   port: "5432"
 
 service:
