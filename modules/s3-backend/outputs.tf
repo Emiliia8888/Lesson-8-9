@@ -8,7 +8,3 @@ output "bucket_arn" {
   value       = aws_s3_bucket.terraform_state.arn
 }
 
-output "dynamodb_table_name" {
-  description = "Terraform lock table"
-  value       = aws_dynamodb_table.terraform_lock.name
-}
