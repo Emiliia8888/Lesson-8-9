@@ -21,7 +21,7 @@ django:
 db:
   name: "django"
   user: "django_admin"
-  host: "django-rds-instance.ctskymysi6zv.eu-central-1.rds.amazonaws.com"
+  host: "django-rds-migration-final.ctskymysi6zv.eu-central-1.rds.amazonaws.com"
   port: "5432"
 
 service:
