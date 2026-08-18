@@ -22,7 +22,6 @@ __pycache__/
 .terraform/
 *.tfstate
 *.tfstate.*
-.terraform.lock.hcl
 *.tfvars
 .venv/
 .DS_Store
