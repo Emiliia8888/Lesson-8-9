@@ -1,0 +1,49 @@
+Phase 2 RDS Migration — Post-Cutover Runtime Evidence
+Date: 2026-08-17
+
+Application:
+  Django deployment: django-app-django-app
+  Replicas: 2/2 Running
+  ArgoCD: Synced / Healthy
+
+Current database target:
+  Identifier: django-rds-migration-final
+  Endpoint: django-rds-migration-final.ctskymysi6zv.eu-central-1.rds.amazonaws.com
+  VPC: vpc-0a193c45e151d961d
+  Security Group: sg-0971c3ecd5e48f376
+
+Database:
+  Engine: PostgreSQL 16.13
+  Instance class: db.t3.micro
+  Storage: 20 GB gp3
+  Encryption: enabled
+  KMS key: 7a0a7c2f-7b6c-4d9d-9cf4-fd188afaca5c
+  Backup retention: 7 days
+  Deletion protection: enabled
+  Publicly accessible: false
+  Multi-AZ: false
+
+Application configuration:
+  DB_HOST points to django-rds-migration-final
+  DB_NAME=django
+  DB_USER=django_admin
+  DB_PORT=5432
+  DB_PASSWORD supplied through Kubernetes Secret
+  SECRET_KEY supplied through Kubernetes Secret
+
+Connectivity:
+  DNS resolution from Django pod: SUCCESS
+  TCP 5432 from Django pod: SUCCESS
+
+Django validation:
+  manage.py check: SUCCESS
+  showmigrations: NOT COMPLETED; command hung and was interrupted
+  migrate --check: NOT COMPLETED; command hung and was interrupted
+
+Terraform:
+  Final review plan: 0 add / 18 change / 0 destroy
+  Final RDS is not represented by a dedicated Terraform resource
+  Final RDS is currently an AWS resource outside Terraform ownership
+
+Important:
+  No Terraform apply was performed as part of this audit.

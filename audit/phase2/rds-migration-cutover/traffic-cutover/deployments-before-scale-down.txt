@@ -1,0 +1,3 @@
+NAME                    READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS         IMAGES                                                                     SELECTOR
+django-app              2/2     2            2           41d     django-container   034255117140.dkr.ecr.eu-central-1.amazonaws.com/django-app:latest          app=django-app
+django-app-django-app   2/2     2            2           2d20h   django-app         034255117140.dkr.ecr.eu-central-1.amazonaws.com/django-app:38ea3cc-amd64   app=django-app

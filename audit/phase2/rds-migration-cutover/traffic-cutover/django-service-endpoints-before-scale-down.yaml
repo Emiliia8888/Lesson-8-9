@@ -1,0 +1,83 @@
+apiVersion: v1
+items:
+- addressType: IPv4
+  apiVersion: discovery.k8s.io/v1
+  endpoints:
+  - addresses:
+    - 10.0.10.143
+    conditions:
+      ready: true
+      serving: true
+      terminating: false
+    nodeName: ip-10-0-10-103.eu-central-1.compute.internal
+    targetRef:
+      kind: Pod
+      name: django-app-5d45b95f84-tgs9j
+      namespace: default
+      uid: 30112b31-da26-4919-b71a-8be8d2d68673
+    zone: eu-central-1a
+  - addresses:
+    - 10.0.10.251
+    conditions:
+      ready: true
+      serving: true
+      terminating: false
+    nodeName: ip-10-0-10-103.eu-central-1.compute.internal
+    targetRef:
+      kind: Pod
+      name: django-app-5d45b95f84-wntn4
+      namespace: default
+      uid: ecf20a2a-0fb0-45d3-ad55-2db688ed5d5a
+    zone: eu-central-1a
+  - addresses:
+    - 10.0.10.71
+    conditions:
+      ready: true
+      serving: true
+      terminating: false
+    nodeName: ip-10-0-10-103.eu-central-1.compute.internal
+    targetRef:
+      kind: Pod
+      name: django-app-django-app-55845c9b9f-rvsz8
+      namespace: default
+      uid: 0b132ee0-ff85-40df-a944-bd49af4c8088
+    zone: eu-central-1a
+  - addresses:
+    - 10.0.10.167
+    conditions:
+      ready: true
+      serving: true
+      terminating: false
+    nodeName: ip-10-0-10-103.eu-central-1.compute.internal
+    targetRef:
+      kind: Pod
+      name: django-app-django-app-55845c9b9f-w8hb9
+      namespace: default
+      uid: fb77fd81-fba8-4108-a0d3-747dfca4375b
+    zone: eu-central-1a
+  kind: EndpointSlice
+  metadata:
+    creationTimestamp: "2026-07-06T17:33:26Z"
+    generateName: django-service-
+    generation: 168
+    labels:
+      endpointslice.kubernetes.io/managed-by: endpointslice-controller.k8s.io
+      kubernetes.io/service-name: django-service
+    name: django-service-j9tjg
+    namespace: default
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Service
+      name: django-service
+      uid: 9945bfc6-96fc-4265-af2b-d98a1e9097ce
+    resourceVersion: "13188950"
+    uid: 664f3250-9d7f-4fb3-815a-b05bbfb628ee
+  ports:
+  - name: ""
+    port: 8000
+    protocol: TCP
+kind: List
+metadata:
+  resourceVersion: ""

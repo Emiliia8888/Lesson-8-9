@@ -1,0 +1,168 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    meta.helm.sh/release-name: django-app
+    meta.helm.sh/release-namespace: argocd
+  creationTimestamp: "2026-08-08T23:00:25Z"
+  generation: 3994
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: django-app
+  namespace: argocd
+  resourceVersion: "12862284"
+  uid: 8d52d9ae-3eed-4a45-a1bc-0e693f86b442
+spec:
+  destination:
+    namespace: default
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: charts/django-app
+    repoURL: https://github.com/Emiliia8888/Lesson-8-9.git
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+status:
+  controllerNamespace: argocd
+  health:
+    status: Degraded
+  history:
+  - deployStartedAt: "2026-08-14T19:26:32Z"
+    deployedAt: "2026-08-14T19:26:33Z"
+    id: 0
+    initiatedBy:
+      automated: true
+    revision: 4f00088118d69f4bf7a0ea285a0855709dd0eaa8
+    source:
+      path: charts/django-app
+      repoURL: https://github.com/Emiliia8888/Lesson-8-9.git
+      targetRevision: main
+  - deployStartedAt: "2026-08-16T12:14:54Z"
+    deployedAt: "2026-08-16T12:14:54Z"
+    id: 1
+    initiatedBy:
+      automated: true
+    revision: 58da3e8c779f955516477be53bf6f13b83d4435d
+    source:
+      path: charts/django-app
+      repoURL: https://github.com/Emiliia8888/Lesson-8-9.git
+      targetRevision: main
+  operationState:
+    finishedAt: "2026-08-16T12:14:54Z"
+    message: successfully synced (all tasks run)
+    operation:
+      initiatedBy:
+        automated: true
+      retry:
+        limit: 5
+      sync:
+        autoHealAttemptsCount: 4
+        prune: true
+        revision: 58da3e8c779f955516477be53bf6f13b83d4435d
+        syncOptions:
+        - CreateNamespace=true
+    phase: Succeeded
+    startedAt: "2026-08-16T12:14:54Z"
+    syncResult:
+      resources:
+      - group: ""
+        hookPhase: Running
+        kind: ConfigMap
+        message: configmap/django-app-django-app-config configured
+        name: django-app-django-app-config
+        namespace: default
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: ""
+        hookPhase: Running
+        kind: Service
+        message: service/django-app-service unchanged
+        name: django-app-service
+        namespace: default
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: apps
+        hookPhase: Running
+        kind: Deployment
+        message: deployment.apps/django-app-django-app unchanged
+        name: django-app-django-app
+        namespace: default
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      - group: autoscaling
+        hookPhase: Running
+        kind: HorizontalPodAutoscaler
+        message: horizontalpodautoscaler.autoscaling/django-app-hpa unchanged
+        name: django-app-hpa
+        namespace: default
+        status: Synced
+        syncPhase: Sync
+        version: v2
+      revision: 58da3e8c779f955516477be53bf6f13b83d4435d
+      source:
+        path: charts/django-app
+        repoURL: https://github.com/Emiliia8888/Lesson-8-9.git
+        targetRevision: main
+  reconciledAt: "2026-08-16T18:14:47Z"
+  resources:
+  - kind: ConfigMap
+    name: django-app-django-app-config
+    namespace: default
+    status: Synced
+    version: v1
+  - health:
+      status: Healthy
+    kind: Service
+    name: django-app-service
+    namespace: default
+    status: Synced
+    version: v1
+  - group: apps
+    health:
+      message: Deployment "django-app-django-app" exceeded its progress deadline
+      status: Degraded
+    kind: Deployment
+    name: django-app-django-app
+    namespace: default
+    status: Synced
+    version: v1
+  - group: autoscaling
+    health:
+      message: the HPA controller was able to get the target's current scale
+      status: Healthy
+    kind: HorizontalPodAutoscaler
+    name: django-app-hpa
+    namespace: default
+    status: Synced
+    version: v2
+  - group: batch
+    hook: true
+    kind: Job
+    name: django-app-migrate
+    namespace: default
+    requiresPruning: true
+    version: v1
+  sourceType: Helm
+  summary:
+    images:
+    - 034255117140.dkr.ecr.eu-central-1.amazonaws.com/django-app-gitops:34
+    - 034255117140.dkr.ecr.eu-central-1.amazonaws.com/django-app:latest
+  sync:
+    comparedTo:
+      destination:
+        namespace: default
+        server: https://kubernetes.default.svc
+      source:
+        path: charts/django-app
+        repoURL: https://github.com/Emiliia8888/Lesson-8-9.git
+        targetRevision: main
+    revision: dc52f3f2e2b4505b3955e5c81692a35c023fc015
+    status: Synced

@@ -1,0 +1,28 @@
+ARN: arn:aws:rds:eu-central-1:034255117140:db:django-rds-migration-final
+AllocatedStorage: 20
+BackupRetention: 7
+DBName: django
+DeletionProtection: true
+Encrypted: true
+Endpoint: django-rds-migration-final.ctskymysi6zv.eu-central-1.rds.amazonaws.com
+Engine: postgres
+EngineVersion: '16.13'
+IOPS: 3000
+Identifier: django-rds-migration-final
+InstanceClass: db.t3.micro
+KmsKey: arn:aws:kms:eu-central-1:034255117140:key/7a0a7c2f-7b6c-4d9d-9cf4-fd188afaca5c
+MultiAZ: false
+ParameterGroup: default.postgres16
+Port: 5432
+PubliclyAccessible: false
+SecurityGroups:
+- sg-0971c3ecd5e48f376
+Snapshot: null
+Status: available
+StorageType: gp3
+SubnetGroup: django-rds-migration-subnet-group
+Subnets:
+- subnet-0fff89a05a16721f8
+- subnet-0c8ba5309ccef069a
+Username: django_admin
+VpcId: vpc-0a193c45e151d961d

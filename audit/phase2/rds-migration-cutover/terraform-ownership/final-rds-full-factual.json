@@ -1,0 +1,30 @@
+{
+    "Identifier": "django-rds-migration-final",
+    "ARN": "arn:aws:rds:eu-central-1:034255117140:db:django-rds-migration-final",
+    "Status": "available",
+    "Engine": "postgres",
+    "EngineVersion": "16.13",
+    "DBName": "django",
+    "MasterUsername": "django_admin",
+    "InstanceClass": "db.t3.micro",
+    "AllocatedStorage": 20,
+    "StorageType": "gp3",
+    "StorageEncrypted": true,
+    "Port": 5432,
+    "Endpoint": "django-rds-migration-final.ctskymysi6zv.eu-central-1.rds.amazonaws.com",
+    "VPC": "vpc-0a193c45e151d961d",
+    "SubnetGroup": "django-rds-migration-subnet-group",
+    "SecurityGroups": [
+        "sg-0971c3ecd5e48f376"
+    ],
+    "ParameterGroups": [
+        "default.postgres16"
+    ],
+    "BackupRetention": 7,
+    "DeletionProtection": true,
+    "MultiAZ": false,
+    "PubliclyAccessible": false,
+    "AutoMinorVersionUpgrade": false,
+    "CopyTagsToSnapshot": true,
+    "SkipFinalSnapshot": null
+}

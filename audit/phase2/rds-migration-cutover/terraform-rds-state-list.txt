@@ -1,0 +1,7 @@
+aws_db_instance.rds_migration
+aws_db_subnet_group.rds_migration
+aws_security_group.rds_migration
+module.rds.aws_db_instance.this[0]
+module.rds.aws_db_parameter_group.rds[0]
+module.rds.aws_db_subnet_group.db
+module.rds.aws_security_group.db
