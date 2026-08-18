@@ -152,6 +152,7 @@ module "s3_backend" {
   source = "./modules/s3-backend"
 
   bucket_name = "emiliia-ft-state-lesson-99"
+  table_name  = "terraform-lock"
 }
 
 resource "kubernetes_storage_class_v1" "gp3" {

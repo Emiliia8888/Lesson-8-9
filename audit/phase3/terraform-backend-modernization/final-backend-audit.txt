@@ -1,0 +1,109 @@
+===== PHASE 3 / FINAL BACKEND MODERNIZATION AUDIT =====
+
+===== TERRAFORM VERSION =====
+Terraform v1.15.7
+on darwin_arm64
++ provider registry.terraform.io/hashicorp/aws v6.60.0
++ provider registry.terraform.io/hashicorp/helm v3.2.0
++ provider registry.terraform.io/hashicorp/kubernetes v3.2.1
+
+Your version of Terraform is out of date! The latest version
+is 1.15.8. You can update by downloading from https://developer.hashicorp.com/terraform/install
+
+===== BACKEND CONFIG =====
+terraform {
+  backend "s3" {
+    bucket       = "emiliia-ft-state-lesson-99"
+    key          = "prod/terraform.tfstate"
+    region       = "eu-central-1"
+    use_lockfile = true
+    encrypt      = true
+  }
+}
+
+===== ACTIVE STATE COUNT =====
+      75
+
+===== ACTIVE BACKEND RESOURCES =====
+module.s3_backend.aws_s3_bucket.terraform_state
+module.s3_backend.aws_s3_bucket_versioning.state_versioning
+
+===== ACTIVE DYNAMODB STATE =====
+
+===== ACTIVE DYNAMODB CONFIG REFERENCES =====
+
+===== S3 STATE OBJECT =====
+{
+    "AcceptRanges": "bytes",
+    "LastModified": "2026-08-18T09:56:05+00:00",
+    "ContentLength": 156899,
+    "ETag": "\"02ccf1473a89f8bc11f924903b72eeb3\"",
+    "VersionId": "null",
+    "ContentType": "application/json",
+    "ServerSideEncryption": "AES256",
+    "Metadata": {}
+}
+
+===== S3 VERSIONING =====
+{
+    "Status": "Suspended"
+}
+
+===== S3 ENCRYPTION =====
+{
+    "ServerSideEncryptionConfiguration": {
+        "Rules": [
+            {
+                "ApplyServerSideEncryptionByDefault": {
+                    "SSEAlgorithm": "AES256"
+                },
+                "BucketKeyEnabled": false,
+                "BlockedEncryptionTypes": {
+                    "EncryptionType": [
+                        "SSE-C"
+                    ]
+                }
+            }
+        ]
+    }
+}
+
+===== S3 PUBLIC ACCESS BLOCK =====
+{
+    "PublicAccessBlockConfiguration": {
+        "BlockPublicAcls": true,
+        "IgnorePublicAcls": true,
+        "BlockPublicPolicy": true,
+        "RestrictPublicBuckets": true
+    }
+}
+
+===== S3 OWNERSHIP =====
+{
+    "OwnershipControls": {
+        "Rules": [
+            {
+                "ObjectOwnership": "BucketOwnerEnforced"
+            }
+        ]
+    }
+}
+
+===== LEGACY DYNAMODB TABLE =====
+-------------------------------------------------
+|                 DescribeTable                 |
++------------------+------------------+---------+
+|    BillingMode   |      Name        | Status  |
++------------------+------------------+---------+
+|  PAY_PER_REQUEST |  terraform-lock  |  ACTIVE |
++------------------+------------------+---------+
+
+===== FINAL PLAN =====
+                        You can watch the status of by running 'kubectl get svc --namespace monitoring -w kube-prometheus-stack-grafana'
+                     export SERVICE_IP=$(kubectl get svc --namespace monitoring kube-prometheus-stack-grafana -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+                kube-prometheus-stack has been installed. Check its status by running:
+  # module.s3_backend.aws_s3_bucket_versioning.state_versioning will be updated in-place
+  ~ resource "aws_s3_bucket_versioning" "state_versioning" {
+      ~ versioning_configuration {
+          ~ status     = "Suspended" -> "Enabled"
+Plan: 0 to add, 18 to change, 0 to destroy.

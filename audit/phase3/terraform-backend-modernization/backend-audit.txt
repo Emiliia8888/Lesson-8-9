@@ -1,0 +1,78 @@
+===== PHASE 3 BACKEND AUDIT =====
+Tue Aug 18 13:26:57 BST 2026
+
+===== BACKEND CONFIG =====
+terraform {
+  backend "s3" {
+    bucket       = "emiliia-ft-state-lesson-99"
+    key          = "prod/terraform.tfstate"
+    region       = "eu-central-1"
+    use_lockfile = true
+    encrypt      = true
+  }
+}
+
+===== S3 VERSIONING =====
+{
+    "Status": "Suspended"
+}
+
+===== S3 ENCRYPTION =====
+{
+    "ServerSideEncryptionConfiguration": {
+        "Rules": [
+            {
+                "ApplyServerSideEncryptionByDefault": {
+                    "SSEAlgorithm": "AES256"
+                },
+                "BucketKeyEnabled": false,
+                "BlockedEncryptionTypes": {
+                    "EncryptionType": [
+                        "SSE-C"
+                    ]
+                }
+            }
+        ]
+    }
+}
+
+===== S3 PUBLIC ACCESS BLOCK =====
+{
+    "PublicAccessBlockConfiguration": {
+        "BlockPublicAcls": true,
+        "IgnorePublicAcls": true,
+        "BlockPublicPolicy": true,
+        "RestrictPublicBuckets": true
+    }
+}
+
+===== S3 OWNERSHIP =====
+{
+    "OwnershipControls": {
+        "Rules": [
+            {
+                "ObjectOwnership": "BucketOwnerEnforced"
+            }
+        ]
+    }
+}
+
+===== DYNAMODB LOCK TABLE =====
+-------------------------------------------------
+|                 DescribeTable                 |
++------------------+------------------+---------+
+|    BillingMode   |      Name        | Status  |
++------------------+------------------+---------+
+|  PAY_PER_REQUEST |  terraform-lock  |  ACTIVE |
++------------------+------------------+---------+
+
+===== TERRAFORM BACKEND RESOURCES =====
+module.s3_backend.aws_s3_bucket.terraform_state
+module.s3_backend.aws_s3_bucket_versioning.state_versioning
+
+===== PLAN SUMMARY =====
+  # module.s3_backend.aws_s3_bucket_versioning.state_versioning will be updated in-place
+  ~ resource "aws_s3_bucket_versioning" "state_versioning" {
+      ~ versioning_configuration {
+          ~ status     = "Suspended" -> "Enabled"
+Plan: 0 to add, 1 to change, 0 to destroy.

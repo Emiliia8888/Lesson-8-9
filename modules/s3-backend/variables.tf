@@ -1,10 +1,4 @@
 variable "bucket_name" {
-  description = "emiliia-tf-state-lesson-99"
+  description = "Terraform state S3 bucket"
   type        = string
 }
-
-variable "table_name" {
-  description = "Name of the DynamoDB table for state locking"
-  type        = string
-}
-
